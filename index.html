@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f7f8f9">
+  <meta name="description" content="Memecoin Radar: a read-only research watchlist with separate market cap, FDV and multi-source data checks.">
+  <title>Memecoin Radar v1.2 | Research dashboard</title>
+  <style>
+/* Memecoin Radar 1.2 — restrained light/dark design, no decorative gradients */
+:root{
+  color-scheme:light;
+  --bg:#f7f8f9;--panel:#ffffff;--panel2:#f4f5f6;--line:#e1e4e8;
+  --muted:#616b78;--text:#171a1f;--green:#167347;--red:#b93549;
+  --aqua:#24354a;--gold:#655537;--action:#171a1f;--action-text:#fff;
+  --focus:#5b6471;--font:ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e1013;--panel:#17191d;--panel2:#202329;--line:#343840;
+  --muted:#a7adb8;--text:#f0f1f3;--green:#77cba0;--red:#ee919b;
+  --aqua:#d6dce4;--gold:#c8b687;--action:#eceef1;--action-text:#15171a;--focus:#9babbf;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.46;cursor:not-allowed}a{color:var(--aqua)}a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.shell{display:grid;grid-template-columns:225px minmax(0,1fr);max-width:1460px;margin:auto;min-height:100vh}
+.sidebar{display:flex;flex-direction:column;gap:33px;position:sticky;top:0;height:100vh;padding:29px 15px 24px 20px;border-right:1px solid var(--line);background:var(--panel)}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text);font-size:15px;font-weight:750;white-space:nowrap;letter-spacing:.012em}.logo-mark{width:37px;height:37px;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);font-weight:700}.logo small{display:block;color:var(--muted);font-size:9px;letter-spacing:.11em;font-weight:550;margin-top:4px}
+.nav{display:grid;gap:4px}.nav-btn{width:100%;text-align:left;background:transparent;color:var(--muted);border:1px solid transparent;border-radius:9px;padding:12px 13px;display:flex;gap:12px;align-items:center;font-size:13px;font-weight:600}.nav-btn:hover{background:var(--panel2);color:var(--text)}.nav-btn.active{background:var(--panel2);border-color:var(--line);color:var(--text)}
+.sidebar-foot{margin-top:auto}.source-blurb{background:transparent;border:1px solid var(--line);border-radius:9px;padding:13px;font-size:11px;line-height:1.65;color:var(--muted)}.source-blurb strong{color:var(--text);font-weight:700}.source-blurb .pulse{display:inline-block;height:7px;width:7px;border-radius:50%;background:var(--muted);margin-right:8px;box-shadow:none}
+.main{padding:32px clamp(18px,3.2vw,48px) 72px;min-width:0}.top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:24px}.eyebrow{color:var(--muted);font-weight:700;letter-spacing:.075em;text-transform:uppercase;font-size:10px}.top h1{font-size:clamp(25px,3vw,36px);font-weight:720;line-height:1.2;letter-spacing:-.035em;margin:7px 0}.sub{font-size:13px;line-height:1.65;color:var(--muted)}.top-right{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:9px 12px;border-radius:9px;font-size:12px;font-weight:600}.dot{height:7px;width:7px;border-radius:50%;display:inline-block;background:#989ca3}.dot.live{background:var(--green);box-shadow:none}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:10px 14px;border-radius:9px;font-size:13px;font-weight:650;display:inline-flex;gap:8px;align-items:center;justify-content:center;text-decoration:none;transition:background .15s ease}.btn:hover{background:var(--panel2);border-color:var(--muted)}.btn.primary{background:var(--action);color:var(--action-text);border-color:var(--action)}.btn.primary:hover{filter:brightness(.92)}.btn.danger{color:var(--red)}.btn.small{padding:8px 11px;font-size:12px}.btn.ghost{background:transparent}.btn.theme-toggle{font-size:12px;gap:7px}.muted{color:var(--muted)}.tiny{font-size:11px}.section{display:none}.section.active{display:block}.title-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:25px 0 15px;flex-wrap:wrap}h2{font-size:17px;letter-spacing:-.02em;font-weight:700;margin:0}h3{font-size:15px;font-weight:650;margin:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}.stat{padding:19px}.stat-k{font-size:10px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;font-weight:700;margin-bottom:8px}.stat-v{font-size:clamp(23px,2.7vw,30px);font-weight:750;letter-spacing:-.035em;white-space:nowrap}.stat-note{font-size:11px;line-height:1.45;color:var(--muted);margin-top:7px}.up{color:var(--green)!important}.down{color:var(--red)!important}.flat{color:var(--muted)!important}
+.hero{display:flex;justify-content:space-between;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px;margin-bottom:18px;overflow:hidden}.hero h2{font-size:clamp(19px,3vw,25px);letter-spacing:-.025em;margin:6px 0 8px}.hero p{color:var(--muted);font-size:13px;max-width:620px;line-height:1.65;margin:0 0 16px}.hero-graphic{display:none}
+.toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:9px}.search-form{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:17px}.search-field{flex:1;min-width:200px;display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);padding:0 13px;border-radius:9px}.search-field:focus-within{border-color:var(--focus)}.search-field input{background:transparent;color:var(--text);outline:0;border:0;min-width:0;width:100%;padding:13px 0;font-size:14px}.search-field input::placeholder{color:var(--muted)}.select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px}
+.cards{display:grid;gap:10px}.token-row{min-width:0;display:grid;grid-template-columns:minmax(170px,1.4fr) repeat(3,minmax(70px,.75fr)) auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:15px}.token-row:hover{background:var(--panel2)}.identity{display:flex;align-items:center;gap:11px;min-width:0}.avatar{width:42px;height:42px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);flex:none;display:grid;place-items:center;font-weight:750;font-size:17px;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}.name{font-size:14px;font-weight:750;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.meta{font-size:11px;margin-top:4px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.metric-label{font-size:10px;font-weight:650;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:5px}.metric-value{font-size:13px;font-weight:700;white-space:nowrap}.row-actions{display:flex;gap:7px;justify-content:flex-end}
+.empty{padding:42px 19px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px;background:var(--panel)}.empty .emoji{font-size:29px;margin-bottom:12px}.empty h3{margin-bottom:8px;color:var(--text)}.empty p{font-size:13px;line-height:1.65;max-width:420px;margin:0 auto 19px}.small-copy{font-size:12px;line-height:1.65;color:var(--muted)}.disclaimer{border-top:1px solid var(--line);margin-top:26px;padding-top:15px;font-size:11px;line-height:1.75;color:var(--muted)}.table-head{display:grid;grid-template-columns:minmax(170px,1.4fr) repeat(3,minmax(70px,.75fr)) auto;gap:12px;padding:0 15px 8px;color:var(--muted);font-weight:650;font-size:10px;text-transform:uppercase}
+.detail-screen{display:none}.detail-screen.active{display:block}.detail-head{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap}.detail-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(290px,.8fr);gap:14px}.detail-hero{padding:22px}.detail-symbol{font-size:28px;font-weight:750;letter-spacing:-.04em}.detail-change{font-size:14px;font-weight:700}.info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}.info-box{min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:13px}.info-box .stat-k{margin-bottom:7px}.info-box strong{font-size:17px;font-weight:700;overflow-wrap:anywhere}.timeframes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0}.time-cell{text-align:center;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 6px}.time-cell span{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}.time-cell strong{font-size:13px}.risk-item{font-size:12px;line-height:1.65;color:var(--text);padding:12px 0;border-top:1px solid var(--line)}.risk-item:first-child{border-top:0}.risk-item strong{color:var(--text)}.risk-item i{font-style:normal;margin-right:9px;color:var(--muted)}
+.field-label{display:block;font-size:12px;font-weight:650;color:var(--text);margin:13px 0 7px}.textarea{resize:vertical;min-height:106px;width:100%;font-size:13px;line-height:1.6;padding:12px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}.textarea:focus{outline:2px solid var(--focus)}.journal-hint{font-size:11px;color:var(--muted);line-height:1.65;margin:9px 0 0}.spark-wrap{height:125px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px;margin-top:14px;display:grid;place-items:center}.spark-wrap svg{width:100%;height:100%}.spark-wrap p{text-align:center;color:var(--muted);font-size:12px}.mini-tag{color:var(--muted);font-size:10px;font-weight:650;border:1px solid var(--line);border-radius:5px;padding:3px 6px}.ref-url{display:inline-block;color:var(--aqua);font-size:12px;text-decoration:none;margin-top:14px}.ref-url:hover{text-decoration:underline}
+.mobile-nav{display:none}.notice{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:13px 15px;margin-bottom:17px;font-size:12px;line-height:1.7;color:var(--text)}.toast{position:fixed;bottom:18px;right:20px;background:var(--text);color:var(--bg);border:1px solid var(--line);padding:12px 15px;border-radius:9px;font-size:12px;z-index:100;max-width:min(430px,90vw);box-shadow:0 8px 25px #0002;display:none}.toast.show{display:block}.split-actions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}.subtitle-label{font-size:10px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;font-weight:700}.loading{opacity:.6;pointer-events:none}
+.audit-panel{margin-top:19px;padding:16px 17px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}.audit-line{font-size:12px;line-height:1.75;color:var(--text);padding-top:11px}.audit-line strong{font-weight:700;color:var(--text)}.pool-list{display:grid;gap:7px}.pool-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);text-decoration:none;color:var(--text)}.pool-entry:hover{background:var(--panel2)}.pool-entry span:first-child{display:grid;gap:4px}.pool-entry small{display:block;font-size:11px;color:var(--muted)}.pool-value{text-align:right;font-size:13px;font-weight:700}.pool-section{margin:12px 0 18px}.pool-section-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}.pool-section-header h4{font-size:13px;font-weight:700;margin:0}.pool-list details{border:1px solid var(--line);border-radius:8px;padding:11px 12px}.pool-list summary{font-size:12px;color:var(--aqua);cursor:pointer}.pool-list details .pool-entry{margin-top:8px}.audit-footnote{color:var(--muted);font-size:11px;line-height:1.5;margin-top:9px}
+@media(max-width:1080px){.shell{grid-template-columns:194px minmax(0,1fr)}.sidebar{padding:24px 10px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-grid{grid-template-columns:1fr}}
+@media(max-width:740px){.shell{display:block}.sidebar{display:none}.main{padding:23px 15px 100px}.top{margin-bottom:19px}.top h1{font-size:29px}.hero{padding:18px}.hero p{font-size:12px}.stats{gap:8px}.stat{padding:15px}.stat-v{font-size:24px}.token-row{grid-template-columns:minmax(0,1fr) auto;gap:11px}.token-row .hide-sm,.table-head{display:none}.row-actions{grid-column:2;grid-row:1}.token-row .mobile-metrics{grid-column:1/-1;display:flex;gap:18px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px}.mobile-metrics .metric-label{margin-bottom:3px}.mobile-nav{position:fixed;display:flex;justify-content:space-around;align-items:center;bottom:0;left:0;right:0;height:calc(61px + env(safe-area-inset-bottom));padding:5px 6px calc(5px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line);z-index:40}.mobile-nav .nav-btn{font-size:10px;display:grid;justify-items:center;text-align:center;gap:3px;flex:1;padding:6px 9px}.mobile-nav .nav-btn svg{width:17px;height:17px}.mobile-nav .nav-btn.active{border-color:transparent;background:var(--panel2)}.detail-grid{grid-template-columns:minmax(0,1fr)}.time-cell{padding:9px 3px}.time-cell strong{font-size:12px}.toast{bottom:78px}.toolbar{width:100%}.top-right{width:100%}.top-right .pill{flex:1;min-width:0}.top-right .btn{flex:none}}
+@media(min-width:741px){.mobile-metrics{display:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <a href="#overview" class="logo" id="brand"><span class="logo-mark">◉</span><span>MEME RADAR<small>TOKEN RESEARCH</small></span></a>
+    <nav class="nav" aria-label="Main menu">
+      <button class="nav-btn active" data-tab="overview"><span>▦</span> Overview</button>
+      <button class="nav-btn" data-tab="explore"><span>⌕</span> Token explorer</button>
+      <button class="nav-btn" data-tab="journal"><span>▤</span> Research journal</button>
+    </nav>
+    <div class="sidebar-foot"><div class="source-blurb"><strong><span class="pulse"></span> READ-ONLY RESEARCH</strong><br>Live market data when connected. No wallet connection, no orders, no signals.<br><br>Data: DEX Screener + GeckoTerminal.</div></div>
+  </aside>
+  <main class="main">
+    <div id="regular-view">
+      <header class="top">
+        <div><div class="eyebrow">MEMECOIN RADAR / RESEARCH</div><h1 id="page-title">Market overview</h1><div class="sub" id="page-subtitle">Review reported market caps, FDV and trading pools.</div></div>
+        <div class="top-right"><span class="pill"><span class="dot" id="connection-dot"></span><span id="connection-text">Not connected yet</span></span><button class="btn theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">◐ Theme</button>
+          <button class="btn" id="refresh-btn" title="Update all tracked tokens">↻ Refresh</button></div>
+      </header>
+      <section class="section active" id="overview">
+        <div class="hero"><div><div class="eyebrow">YOUR WORKSPACE</div><h2>A clearer view of token data.</h2><p>Track tokens, compare public data sources and keep research notes. No wallet connection required.</p><button class="btn primary" data-go="explore">⌕ Explore tokens</button></div><div class="hero-graphic" aria-hidden="true">📡</div></div>
+        <div class="stats">
+          <div class="panel stat"><div class="stat-k">Tracked tokens</div><div class="stat-v" id="total-tokens">0</div><div class="stat-note">Personal watchlist</div></div>
+          <div class="panel stat"><div class="stat-k">Up in 24h</div><div class="stat-v up" id="up-tokens">0</div><div class="stat-note">Among tokens with data</div></div>
+          <div class="panel stat"><div class="stat-k">Down in 24h</div><div class="stat-v down" id="down-tokens">0</div><div class="stat-note">Among tokens with data</div></div>
+          <div class="panel stat"><div class="stat-k">Latest update</div><div class="stat-v" id="update-time" style="font-size:22px">Not yet</div><div class="stat-note">Manual or every 60 seconds</div></div>
+        </div>
+        <div class="title-row"><h2>Watchlist</h2><div class="toolbar"><select class="select" id="sort-select" aria-label="Sort watchlist"><option value="name">Sort: Name</option><option value="change">24h price change</option><option value="marketcap">Cap / FDV</option><option value="liquidity">Liquidity</option></select><button class="btn small" data-go="explore">+ Add token</button></div></div>
+        <div id="watchlist" class="cards"></div>
+      </section>
+      <section class="section" id="explore">
+        <div class="notice"><strong>Verify the contract.</strong> Many unrelated memecoins share the same symbol. Use the correct blockchain and token address from an independent source before tracking anything. Prices can differ between pools and platforms.</div>
+        <form id="search-form" class="search-form"><label class="search-field"><span aria-hidden="true">⌕</span><input id="search-input" autocomplete="off" spellcheck="false" placeholder="Search by name, symbol, or contract address" aria-label="Search token"><span class="mini-tag">DEX</span></label><button type="submit" class="btn primary" id="search-btn">Search tokens</button></form>
+        <div class="split-actions"><div class="small-copy" id="search-status">Search across publicly indexed trading pairs. Results are grouped by blockchain + token address. Values are labeled by source.</div><button id="clear-results" class="btn ghost small" hidden>Clear results</button></div>
+        <div class="title-row"><h2>Search results</h2><span class="pill" id="result-count">0 tokens</span></div><div id="search-results" class="cards"><div class="empty"><div class="emoji">🔎</div><h3>Start with a token name</h3><p>Try a name like CATE or STONK, then confirm the blockchain and contract address before adding it.</p></div></div>
+      </section>
+      <section class="section" id="journal">
+        <div class="panel" style="margin-bottom:16px"><div class="eyebrow">RESEARCH NOTES</div><h2 style="margin:9px 0">What would prove the prediction wrong?</h2><p class="small-copy" style="max-width:650px">Save a thesis and the evidence that would change your mind. This journal is for research, not buy or sell decisions. Notes stay in this browser unless you export them.</p><div class="toolbar"><button class="btn small" id="export-btn">↓ Export data</button><button class="btn small" id="import-btn">↑ Import data</button><input id="import-input" type="file" accept=".json,application/json" hidden></div></div>
+        <div id="journal-list" class="cards"></div>
+      </section>
+      <div class="disclaimer">Memecoin Radar v1.2 uses DEX Screener and (when reachable) GeckoTerminal, with market cap and FDV separated. Independent educational tool, not affiliated with FOMO or the data providers. Prices and liquidity may be delayed, incomplete, or different from other platforms. No financial advice or performance predictions. Never paste wallet recovery phrases or private keys into this app.</div>
+    </div>
+    <div class="detail-screen" id="detail-screen"><div class="detail-head"><button class="btn" id="back-btn">← Back</button><div class="toolbar"><button class="btn small theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">◐ Theme</button>
+          <button class="btn small" id="detail-refresh">↻ Refresh data</button><button class="btn danger small" id="detail-remove">Remove from watchlist</button></div></div><div id="detail-content"></div></div>
+  </main>
+</div>
+<nav class="mobile-nav" aria-label="Mobile menu"><button class="nav-btn active" data-tab="overview"><span>▦</span> Overview</button><button class="nav-btn" data-tab="explore"><span>⌕</span> Explore</button><button class="nav-btn" data-tab="journal"><span>▤</span> Journal</button></nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  'use strict';
+  const API = 'https://api.dexscreener.com';
+  const GECKO = 'https://api.geckoterminal.com/api/v2';
+  const GEO_NETWORKS = {solana:'solana',ethereum:'eth',base:'base',bsc:'bsc',polygon:'polygon_pos',arbitrum:'arbitrum',optimism:'optimism',avalanche:'avax'};
+  const STORE = 'memecoin-radar-v1'; // retain compatibility with all previous versions
+  const THEME_STORE = 'memecoin-radar-theme';
+  const MAX_TOKENS = 25;
+  const $ = id => document.getElementById(id);
+  const emptyState = (emoji, title, desc, action='') => `<div class="empty"><div class="emoji">${emoji}</div><h3>${title}</h3><p>${desc}</p>${action}</div>`;
+  const safe = s => String(s ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const num = v => v === null || v === undefined || v === '' ? null : (Number.isFinite(Number(v)) ? Number(v) : null);
+  const compact = (v, prefix='$') => { const n=num(v); if(n===null)return 'N/A'; const abs=Math.abs(n); const suff=abs>=1e12?'T':abs>=1e9?'B':abs>=1e6?'M':abs>=1e3?'K':''; const base=suff?abs/(suff==='T'?1e12:suff==='B'?1e9:suff==='M'?1e6:1e3):abs;return `${n<0?'-':''}${prefix}${base.toLocaleString('en-US',{maximumFractionDigits:base>=100?0:base>=10?1:2})}${suff}`};
+  const money = v => {const n=num(v); if(n===null)return 'N/A';if(n>=.01)return '$'+n.toLocaleString('en-US',{maximumFractionDigits:6});if(n===0)return '$0';return '$'+n.toPrecision(4)};
+  const pc = n => {const v=num(n);return v===null?'N/A':`${v>0?'+':''}${v.toFixed(2)}%`};
+  const polarity = n => num(n)===null?'flat':Number(n)>0?'up':Number(n)<0?'down':'flat';
+  const when = t => t ? new Date(t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : 'Not yet';
+  const age = t => {if(!t)return 'Unknown';let d=Math.max(0,(Date.now()-t)/86400000);return d<1?`${Math.max(1,Math.floor(d*24))}h`:d<30?`${Math.floor(d)}d`:`${Math.floor(d/30)}mo`};
+  const isHttp = url => {try{return new URL(url).protocol==='https:'}catch{return false}};
+  const key = (chain,address) => `${chain}:${address}`;
+  let state = {watch:[],notes:{},samples:{}};
+  try {let s=JSON.parse(localStorage.getItem(STORE) || 'null');if(s && Array.isArray(s.watch))state={watch:s.watch.filter(x=>x && typeof x.chain==='string' && typeof x.address==='string').slice(0,MAX_TOKENS),notes:s.notes||{},samples:s.samples||{}}} catch(e){}
+  let pairData = new Map(), poolsByToken = new Map(), geckoPoolsByToken = new Map(), poolChecks = new Map(), poolBusy=false, geckoByToken = new Map(), geckoChecks = new Map(), geckoBlockedUntil=0, geckoBusy=false, searchData = [], lastUpdate=null, activeTab='overview', activeToken=null, fetchInProgress=false, toastHandle=null, searchCtrl=null;
+  let currentTheme = 'light';
+  try { currentTheme = localStorage.getItem(THEME_STORE)==='dark'?'dark':'light'; }catch(e){}
+  function applyTheme(theme){
+    currentTheme = theme==='dark'?'dark':'light';
+    document.documentElement.setAttribute('data-theme',currentTheme);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content',currentTheme==='dark'?'#0e1013':'#f7f8f9');
+    document.querySelectorAll('[data-theme-toggle]').forEach(x=>{x.textContent=currentTheme==='dark'?'☀ Light mode':'☾ Dark mode';x.setAttribute('aria-pressed',currentTheme==='dark'?'true':'false')});
+    try{localStorage.setItem(THEME_STORE,currentTheme)}catch(e){}
+  }
+  applyTheme(currentTheme);
+  const persist = () => {try{localStorage.setItem(STORE,JSON.stringify(state))}catch{toast('Could not save to browser storage. Free up space or check private browsing.')}};
+  const toast = msg => {const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastHandle);toastHandle=setTimeout(()=>el.classList.remove('show'),4500)};
+  const cleanPair = p => {if(!p || !p.baseToken || !p.chainId || !p.pairAddress)return null;return p};
+  const bestPair = (pairs, address) => (pairs||[]).filter(p=>cleanPair(p) && p.baseToken.address?.toLowerCase()===address?.toLowerCase()).sort((a,b)=>(num(b.liquidity?.usd)||0)-(num(a.liquidity?.usd)||0))[0]||null;
+  function avatar(pair, symbol, imageOverride=''){
+    const src=imageOverride||pair?.info?.imageUrl;
+    const letter=safe((symbol||'?').substring(0,1).toUpperCase());
+    return `<div class="avatar">${isHttp(src)?`<img src="${safe(src)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:letter}</div>`;
+  }
+  function itemData(x){const k=key(x.chain,x.address),p=pairData.get(k);return {k,p,chain:x.chain,address:x.address,symbol:p?.baseToken?.symbol||x.symbol||'?',name:p?.baseToken?.name||x.name||'Unknown token',image:x.image||''}}
+  async function api(path,signal){const controller=new AbortController();const t=setTimeout(()=>controller.abort(),11000);if(signal)signal.addEventListener('abort',()=>controller.abort(),{once:true});try{let response=await fetch(API+path,{signal:controller.signal,headers:{'Accept':'application/json'},cache:'no-store'});if(!response.ok)throw Error(`DEX Screener returned HTTP ${response.status}`);return await response.json()}finally{clearTimeout(t)}}
+  function recordSample(k,p){let price=num(p?.priceUsd);if(price===null||price<=0)return;let a=state.samples[k]||[];let now=Date.now();if(!a.length||now-a[a.length-1].t>58000){a.push({t:now,v:price});state.samples[k]=a.slice(-60)}}
+  function sparkline(k){const a=(state.samples[k]||[]).filter(x=>Number.isFinite(x.v));if(a.length<3)return `<p>Price snapshots appear here after several refreshes. Not historical exchange data.</p>`;const vals=a.map(x=>x.v),lo=Math.min(...vals),hi=Math.max(...vals),range=hi-lo||Math.max(hi,.00001)*.0001,points=vals.map((v,i)=>`${(i/(vals.length-1)*580).toFixed(1)},${(92-(v-lo)/range*82).toFixed(1)}`).join(' ');const col=vals.at(-1)>=vals[0]?'var(--green)':'var(--red)';return `<svg role="img" aria-label="Price samples recorded since adding token" viewBox="0 0 580 100" preserveAspectRatio="none"><path d="M0 99H580" stroke="var(--line)"/><polyline points="${points}" fill="none" stroke="${col}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`}
+  // Never substitute FDV for circulating cap. Each market cap is explicitly provider-reported.
+  function marketInfo(d){
+    const g=geckoByToken.get(d.k)?.attributes || null, p=d.p;
+    const gtCap=num(g?.market_cap_usd), dexCap=num(p?.marketCap);
+    const fdv=num(p?.fdv) ?? num(g?.fdv_usd);
+    const dexLooksLikeFDV=dexCap!==null&&fdv!==null&&Math.abs(dexCap-fdv)/Math.max(fdv,1)<=.02;
+    if(gtCap!==null&&gtCap>0)return {value:gtCap,label:'Market cap · GeckoTerminal',status:'GeckoTerminal',fdv,dexCap,gtCap,dexLooksLikeFDV};
+    if(dexCap!==null&&dexCap>0&&!dexLooksLikeFDV)return {value:dexCap,label:'Market cap · DEX Screener',status:'DEX Screener',fdv,dexCap,gtCap,dexLooksLikeFDV};
+    return {value:null,label:'Circulating cap unavailable',status:'No independently usable cap',fdv,dexCap,gtCap,dexLooksLikeFDV};
+  }
+
+    function capMetric(d){const m=marketInfo(d);return {label:m.value!==null?m.label:m.fdv!==null?'FDV · cap unavailable':m.label,value:m.value!==null?compact(m.value):m.fdv!==null?compact(m.fdv):'N/A'}}
+  const canonicalPoolAddress = p => String(p?.pairAddress||'').toLowerCase();
+  function aggregatePools(pairs,tokenAddress){
+    const a=String(tokenAddress).toLowerCase(), unique=new Map();
+    for(const p of (pairs||[])){
+      if(!cleanPair(p) || !(p.baseToken?.address?.toLowerCase()===a || p.quoteToken?.address?.toLowerCase()===a))continue;
+      const k=canonicalPoolAddress(p);if(!k)continue;
+      if(!unique.has(k) || (num(p.liquidity?.usd)||0)>(num(unique.get(k).liquidity?.usd)||0))unique.set(k,p);
+    }
+    const arr=[...unique.values()].sort((a,b)=>(num(b.liquidity?.usd)||0)-(num(a.liquidity?.usd)||0));
+    return {pairs:arr,usd:arr.reduce((total,p)=>total+(Math.max(0,num(p.liquidity?.usd)||0)),0),updated:Date.now()};
+  }
+  async function geckoFetch(path){
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+    try{
+      const res=await fetch(`${GECKO}${path}`,{signal:controller.signal,headers:{Accept:'application/json;version=20230203'},cache:'no-store'});
+      if(!res.ok)throw Error(`GeckoTerminal HTTP ${res.status}`);
+      return await res.json();
+    }finally{clearTimeout(timer)}
+  }
+  async function geckoApi(chain,address){
+    const network=GEO_NETWORKS[chain];if(!network)throw Error('GeckoTerminal network not configured');
+    const path=`/networks/${encodeURIComponent(network)}/tokens/${encodeURIComponent(address)}`;
+    const data=await geckoFetch(path);
+    if(!data?.data?.attributes)throw Error('Missing GeckoTerminal token attributes');
+    return {attributes:data.data.attributes,checked:Date.now()};
+  }
+  function normalizeGeckoPools(data,checked,partial=false){
+    const unique=new Map();
+    for(const entry of data){
+      const a=entry?.attributes||{},address=String(a.address||'');if(!address)continue;
+      const id=address.toLowerCase();
+      if(!unique.has(id)||num(a.reserve_in_usd)>num(unique.get(id).attributes?.reserve_in_usd))unique.set(id,entry);
+    }
+    const arr=[...unique.values()].sort((a,b)=>(num(b.attributes?.reserve_in_usd)||0)-(num(a.attributes?.reserve_in_usd)||0));
+    return {pairs:arr,usd:arr.reduce((sum,x)=>sum+Math.max(0,num(x.attributes?.reserve_in_usd)||0),0),checked,partial};
+  }
+  async function geckoPoolApi(chain,address){
+    const network=GEO_NETWORKS[chain],prefix=`/networks/${encodeURIComponent(network)}/tokens/${encodeURIComponent(address)}/pools`;
+    const first=await geckoFetch(`${prefix}?page=1`);
+    if(!Array.isArray(first?.data))throw Error('Missing GeckoTerminal pool data');
+    const entries=[...first.data];let partial=first.data.length>=20;
+    // Two pages max per token to keep within the free API's approximate 10 calls/minute limit.
+    if(partial){
+      try {const second=await geckoFetch(`${prefix}?page=2`);if(Array.isArray(second?.data)){entries.push(...second.data);partial=second.data.length>=20}}
+      catch(e){console.warn('Additional GeckoTerminal pools unavailable:',e)}
+    }
+    return normalizeGeckoPools(entries,Date.now(),partial);
+  }
+  async function refreshPoolDiscovery(){
+    if(poolBusy||!state.watch.length)return;
+    const queue=state.watch.filter(t=>Date.now()-(poolChecks.get(key(t.chain,t.address))||0)>300000).slice(0,2);
+    if(!queue.length)return;poolBusy=true;
+    try {
+      for(const t of queue){
+        const k=key(t.chain,t.address);poolChecks.set(k,Date.now());
+        try{
+          // Token-specific lookup is broader and more accurate than the small batch response.
+          const result=await api(`/token-pairs/v1/${encodeURIComponent(t.chain)}/${encodeURIComponent(t.address)}`);
+          if(!Array.isArray(result))throw Error('Unexpected DEX pool response');
+          const pools=aggregatePools(result,t.address);pools.source='DEX Screener';poolsByToken.set(k,pools);
+          const best=bestPair(result,t.address);
+          if(best){pairData.set(k,best);recordSample(k,best)}
+        }catch(e){console.warn('DEX token pool lookup failed:',e)}
+      }
+    }finally{poolBusy=false;renderOverview();if(activeToken)openDetail(activeToken,true)}
+  }
+  async function verifyWithGecko(){
+    if(geckoBusy||Date.now()<geckoBlockedUntil)return;
+    // At most two tokens per cycle. Normal case: four requests (token data + first pool page).
+    const queue=state.watch.filter(t=>GEO_NETWORKS[t.chain]&&Date.now()-(geckoChecks.get(key(t.chain,t.address))||0)>600000).slice(0,2);
+    if(!queue.length)return;geckoBusy=true;
+    try{
+      for(const t of queue){
+        const k=key(t.chain,t.address);geckoChecks.set(k,Date.now());
+        try{
+          geckoByToken.set(k,await geckoApi(t.chain,t.address));
+          try{geckoPoolsByToken.set(k,await geckoPoolApi(t.chain,t.address))}
+          catch(e){console.warn('GeckoTerminal pool list unavailable:',e)}
+        }catch(e){console.warn('GeckoTerminal verification unavailable:',e);geckoBlockedUntil=Date.now()+300000;break}
+      }
+    }finally{geckoBusy=false;renderOverview();if(activeToken)openDetail(activeToken,true)}
+  }
+  const listPoolEntry=(url,dex,description,amount)=>`<a class="pool-entry" href="${safe(url)}" target="_blank" rel="noopener noreferrer"><span><b>${safe(dex)}</b><small>${safe(description)}</small></span><span class="pool-value">${compact(amount)}<small>pool liquidity</small></span><span aria-hidden="true">↗</span></a>`;
+  function makePoolSection(title,pairs,sourceTime,entry,coverage){
+    if(!pairs)return `<div class="pool-section"><div class="pool-section-header"><h4>${safe(title)}</h4><span class="mini-tag">Pending</span></div><p class="small-copy">Waiting for this data source or temporarily unavailable.</p></div>`;
+    const list=pairs.map(entry);
+    const first=list.slice(0,5).join('');
+    const rest=list.length>5?`<details><summary>Show ${list.length-5} more pools</summary>${list.slice(5).join('')}</details>`:'';
+    return `<div class="pool-section"><div class="pool-section-header"><h4>${safe(title)}</h4><span class="mini-tag">${pairs.length} found</span></div><div class="pool-list">${first}${rest}</div><p class="audit-footnote">${safe(coverage)} · fetched ${when(sourceTime)}${pairs.length===0?' · none returned':''}</p></div>`;
+  }
+  function poolRows(d){
+    const dex=poolsByToken.get(d.k),gecko=geckoPoolsByToken.get(d.k),network=GEO_NETWORKS[d.chain];
+    const dexHtml=makePoolSection('DEX Screener',dex?.pairs,dex?.updated,p=>{
+      const url=isHttp(p.url)?p.url:`https://dexscreener.com/${encodeURIComponent(d.chain)}/${encodeURIComponent(p.pairAddress)}`;
+      return listPoolEntry(url,p.dexId||'DEX',`${p.baseToken?.symbol||'?'} / ${p.quoteToken?.symbol||'?'}`,p.liquidity?.usd);
+    },'Token-specific indexed pools; may omit unindexed markets');
+    const geckoHtml=makePoolSection('GeckoTerminal',gecko?.pairs,gecko?.checked,p=>{
+      const attr=p.attributes||{},addr=attr.address||'';
+      const url=`https://www.geckoterminal.com/${encodeURIComponent(network||d.chain)}/pools/${encodeURIComponent(addr)}`;
+      return listPoolEntry(url,attr.name||'Pool',attr.address||'Pool address unavailable',attr.reserve_in_usd);
+    },`Up to 40 top pools (max two pages)${gecko?.partial?'; more may exist':''}`);
+    return dexHtml+geckoHtml+'<p class="audit-footnote">Do not add figures from the two sources together. They can list the same pools.</p>';
+  }
+  function dataAudit(d){
+    const m=marketInfo(d),gt=geckoByToken.get(d.k),dex=poolsByToken.get(d.k),gp=geckoPoolsByToken.get(d.k),a=[];
+    if(m.value!==null)a.push(`<strong>Circulating market cap:</strong> ${compact(m.value)} reported by ${safe(m.status)}. This is a provider figure, not an independently audited supply calculation.`);
+    else a.push('<strong>Circulating market cap unavailable.</strong> We do not substitute fully diluted valuation as market cap.');
+    if(m.dexLooksLikeFDV)a.push(`<strong>DEX API field check:</strong> its marketCap field (${compact(m.dexCap)}) is within 2% of FDV (${compact(m.fdv)}). We flag this as potentially FDV-like rather than calling it a confirmed circulating cap.`);
+    else if(m.dexCap!==null)a.push(`DEX Screener API marketCap field: ${compact(m.dexCap)}; separate FDV: ${compact(m.fdv)}.`);
+    if(m.gtCap!==null&&m.dexCap!==null&&!m.dexLooksLikeFDV){const delta=Math.abs(m.gtCap-m.dexCap)/Math.max(m.gtCap,1)*100;if(delta>=2)a.push(`Source difference: GeckoTerminal and DEX Screener market caps differ by approximately ${delta.toFixed(1)}%.`)}
+    if(dex)a.push(`<strong>DEX token-pair lookup:</strong> ${dex.pairs.length} distinct indexed pools returned, with ${compact(dex.usd)} combined reported pool liquidity in this returned set (not a chain-wide total).`);
+    else a.push('DEX token-specific pool discovery is pending or unavailable.');
+    if(gp)a.push(`<strong>GeckoTerminal pool pages:</strong> ${gp.pairs.length} pools returned, with ${compact(gp.usd)} liquidity within these results.${gp.partial?' More pages may exist.':''} These may overlap DEX Screener’s pools.`);
+    else a.push('GeckoTerminal pool discovery is pending or unavailable.');
+    if(gt?.attributes?.total_reserve_in_usd!=null)a.push(`GeckoTerminal token-level total reserve figure: ${compact(gt.attributes.total_reserve_in_usd)}. This is a different provider-level measurement, not the selected DEX pool.`);
+    a.push(`<strong>Fetched:</strong> DEX price ${lastUpdate?when(lastUpdate):'search snapshot'} · DEX pools ${dex?when(dex.updated):'pending'} · Gecko token ${gt?when(gt.checked):'pending'} · Gecko pools ${gp?when(gp.checked):'pending'}. API cache delays can apply.`);
+    a.push('These are provider-reported observations, not proof that all pools, holders or liquidity are known. No numbers from FOMO are imported.');
+    return a.map(x=>`<div class="audit-line">${x}</div>`).join('');
+  }
+
+    function tokenRow(d,mode='watch'){
+    const p=d.p, change=p?.priceChange?.h24, k=d.k, watching=state.watch.some(x=>key(x.chain,x.address)===k);
+    const action=mode==='search'? `<button class="btn small ${watching?'':'primary'}" data-action="${watching?'inspect':'add'}" data-key="${safe(k)}">${watching?'View':' + Watch'}</button>`: `<button class="btn small" data-action="inspect" data-key="${safe(k)}">Details →</button>`;
+    const sub=`${safe(d.chain)} · ${safe(p?.dexId||'DEX')} · ${safe(d.address.slice(0,6))}…${safe(d.address.slice(-4))}`;
+    const cap=capMetric(d);
+    const metric=(label,v,cls='')=>`<div><div class="metric-label">${label}</div><div class="metric-value ${cls}">${v}</div></div>`;
+    return `<article class="token-row"> <div class="identity">${avatar(p,d.symbol,d.image)}<div style="min-width:0"><div class="name">${safe(d.symbol)} <span style="color:#8393aa;font-weight:500">${safe(d.name===d.symbol?'':d.name)}</span></div><div class="meta">${sub}</div></div></div><div class="hide-sm">${metric('Price',money(p?.priceUsd))}</div><div class="hide-sm">${metric(cap.label,cap.value)}</div><div class="hide-sm">${metric('24h change',pc(change),polarity(change))}</div><div class="row-actions">${action}</div><div class="mobile-metrics">${metric('Price',money(p?.priceUsd))}${metric(cap.label,cap.value)}${metric('24h',pc(change),polarity(change))}</div></article>`
+  }
+  function sortedWatch(){let rows=state.watch.map(itemData);const sort=$('sort-select').value;rows.sort((a,b)=>sort==='change'?(num(b.p?.priceChange?.h24)??-Infinity)-(num(a.p?.priceChange?.h24)??-Infinity):sort==='marketcap'?(marketInfo(b).value??marketInfo(b).fdv??0)-(marketInfo(a).value??marketInfo(a).fdv??0):sort==='liquidity'?(num(b.p?.liquidity?.usd)||0)-(num(a.p?.liquidity?.usd)||0):a.symbol.localeCompare(b.symbol));return rows}
+  function renderOverview(){let rows=sortedWatch(),live=rows.filter(d=>d.p);$('total-tokens').textContent=rows.length;$('up-tokens').textContent=live.filter(d=>num(d.p?.priceChange?.h24)>0).length;$('down-tokens').textContent=live.filter(d=>num(d.p?.priceChange?.h24)<0).length;$('update-time').textContent=when(lastUpdate);$('watchlist').innerHTML=rows.length?`<div class="table-head"><span>Token / network</span><span>Price</span><span>Cap / FDV</span><span>24h</span><span>Details</span></div>${rows.map(d=>tokenRow(d)).join('')}`:emptyState('📡','Your radar is quiet','Find a token to start tracking its public market data and record your research.',`<button class="btn primary" data-go="explore">Find your first token</button>`)}
+  function renderSearch(){let watched=searchData.map(p=>({k:key(p.chainId,p.baseToken.address),p,chain:p.chainId,address:p.baseToken.address,symbol:p.baseToken.symbol||'?',name:p.baseToken.name||'Unknown'}));$('result-count').textContent=`${watched.length} token${watched.length===1?'':'s'}`;$('search-results').innerHTML=watched.length?watched.map(d=>tokenRow(d,'search')).join(''):emptyState('🔎','No tokens found','Try a more specific search, such as the exact token contract address.')}
+  function renderJournal(){const d=state.watch.map(itemData);$('journal-list').innerHTML=d.length?d.map(x=>{const n=state.notes[x.k]||{};return `<article class="panel"><div class="split-actions"><div class="identity">${avatar(x.p,x.symbol,x.image)}<div><strong>${safe(x.symbol)}</strong><div class="small-copy">${safe(x.chain)} · ${safe(x.address.slice(0,8))}…</div></div></div><button class="btn small" data-action="inspect" data-key="${safe(x.k)}">Open journal →</button></div><div class="small-copy" style="margin-top:12px">${safe((n.thesis||'No research thesis yet.').slice(0,140))}${(n.thesis||'').length>140?'…':''}</div></article>`}).join(''):emptyState('📝','Your journal starts with a token','Add a token to the watchlist. Each one gets a dedicated space for predictions, evidence, and counterarguments.',`<button class="btn primary" data-go="explore">Explore tokens</button>`)}
+  function observations(p){let out=[];const liq=num(p?.liquidity?.usd),vol=num(p?.volume?.h24),chg=num(p?.priceChange?.h24),created=num(p?.pairCreatedAt),buys=num(p?.txns?.h24?.buys),sells=num(p?.txns?.h24?.sells);
+    if(!p)return ['Market data unavailable. This token may have no indexed trading pools.'];
+    if(liq===null)out.push('Pool liquidity is missing from this data source.');else if(liq<50000)out.push(`This selected pool has only ${compact(liq)} in reported liquidity. Large trades may encounter substantial slippage.`);
+    if(created&&Date.now()-created<7*86400000)out.push('This trading pair was created less than seven days ago. Limited track record.');
+    if(chg!==null&&Math.abs(chg)>=40)out.push(`Price moved ${pc(chg)} in 24 hours on this pool. Recent volatility can be extreme.`);
+    if(vol!==null&&liq!==null&&liq>0&&vol/liq>=5)out.push('24h traded volume is several times current pool liquidity. This can reflect rapid turnover, not necessarily durable interest.');
+    if(buys!==null&&sells!==null)out.push(`${buys.toLocaleString()} buys and ${sells.toLocaleString()} sells reported in 24h for this pool. These are transaction counts, not unique traders.`);
+    out.push('This view cannot verify holder distribution, insider ownership, contract security, or whether the community’s claims are true.');return out;
+  }
+  function detailMarkup(d){const p=d.p,n=state.notes[d.k]||{},change=p?.priceChange?.h24,cap=marketInfo(d),gecko=geckoByToken.get(d.k)?.attributes,pools=poolsByToken.get(d.k);const metric=(label,value)=>`<div class="info-box"><div class="stat-k">${label}</div><strong>${value}</strong></div>`;const diffs=['m5','h1','h6','h24'].map(t=>`<div class="time-cell"><span>${({m5:'5 min',h1:'1 hour',h6:'6 hours',h24:'24 hours'})[t]}</span><strong class="${polarity(p?.priceChange?.[t])}">${pc(p?.priceChange?.[t])}</strong></div>`).join('');
+    const link=p?.url&&isHttp(p.url)?p.url:`https://dexscreener.com/${encodeURIComponent(d.chain)}/${encodeURIComponent(p?.pairAddress||d.address)}`;
+    return `<div class="detail-grid"><div style="display:grid;gap:14px;align-content:start"><div class="panel detail-hero"><div class="identity">${avatar(p,d.symbol,d.image)}<div><div class="detail-symbol">${safe(d.symbol)}</div><div class="small-copy">${safe(d.name)} · ${safe(d.chain)}</div></div></div><div class="split-actions" style="margin-top:20px;gap:14px"><div><div class="stat-k">Current USD price</div><div class="detail-symbol">${money(p?.priceUsd)}</div></div><div class="detail-change ${polarity(change)}">${pc(change)} <small style="font-weight:500;color:var(--muted)">24h</small></div></div><div class="timeframes">${diffs}</div><div class="spark-wrap">${sparkline(d.k)}</div><div class="journal-hint">Trend line is based only on samples recorded while this app was refreshed. It is not a full price chart.</div><div class="info-grid">${metric('Circulating market cap',cap.value!==null?compact(cap.value):'Not verified')}${metric('Fully diluted valuation',compact(cap.fdv))}${metric('Selected pool liquidity',compact(p?.liquidity?.usd))}${metric('DEX pools found · liquidity',pools?compact(pools.usd):'Checking…')}${metric('Gecko token reserve figure',compact(gecko?.total_reserve_in_usd))}${metric('DEX API marketCap field',compact(p?.marketCap))}${metric('Pool 24h volume',compact(p?.volume?.h24))}${metric('Pool age',age(p?.pairCreatedAt))}${metric('DEX',safe(p?.dexId||'Unknown'))}${metric('Active paid boosts',p?.boosts?.active??'Not listed')}</div><div class="audit-panel"><div class="eyebrow">SOURCE COMPARISON · AUTOMATIC</div>${dataAudit(d)}</div><div class="title-row"><h3>Trading pools</h3><span class="mini-tag">Two sources · kept separate</span></div>${poolRows(d)}<a class="ref-url" rel="noopener noreferrer" target="_blank" href="${safe(link)}">Open selected pair on DEX Screener ↗</a><p class="small-copy" style="overflow-wrap:anywhere">Token contract: <code>${safe(d.address)}</code><br>Pool: <code>${safe(p?.pairAddress||'Unknown')}</code></p></div><div class="panel"><h3>🔍 Things worth checking</h3><p class="small-copy">Automated observations based on limited public pool data. Not a risk rating.</p>${observations(p).map(s=>`<div class="risk-item"><i>•</i>${safe(s)}</div>`).join('')}</div></div>
+    <div class="panel" style="align-self:start"><div class="eyebrow">YOUR PRIVATE RESEARCH JOURNAL</div><h2 style="margin:10px 0 6px">${safe(d.symbol)} thesis</h2><p class="small-copy">What is the claim? What evidence supports it? What would falsify it?</p><label class="field-label" for="note-thesis">The claim / prediction</label><textarea id="note-thesis" class="textarea" placeholder="Example: The community believes this token will overtake another token.">${safe(n.thesis||'')}</textarea><label class="field-label" for="note-evidence">Evidence and sources</label><textarea id="note-evidence" class="textarea" placeholder="Use specific dates, numbers, and source links. Avoid relying on hype alone.">${safe(n.evidence||'')}</textarea><label class="field-label" for="note-doubts">Counterarguments / unknowns</label><textarea id="note-doubts" class="textarea" placeholder="What data is missing? What would change your opinion?">${safe(n.doubts||'')}</textarea><div class="split-actions" style="margin-top:13px"><button id="save-note" class="btn primary">Save journal</button><span class="tiny muted">Saved in this browser only</span></div></div></div>`
+  }
+  function openDetail(k, preserveDrafts=false){let d=state.watch.map(itemData).find(x=>x.k===k);if(!d){toast('Add this token to your watchlist first.');return}let fields=['note-thesis','note-evidence','note-doubts'];let draft=preserveDrafts?fields.map(id=>$(id)?.value??null):null;activeToken=k;$('regular-view').hidden=true;$('detail-screen').classList.add('active');$('detail-content').innerHTML=detailMarkup(d);if(draft)fields.forEach((id,i)=>{if(draft[i]!==null)$(id).value=draft[i]});if(!preserveDrafts)window.scrollTo(0,0)}
+  function closeDetail(){activeToken=null;$('regular-view').hidden=false;$('detail-screen').classList.remove('active');showTab(activeTab)}
+  function showTab(tab){if(!['overview','explore','journal'].includes(tab))tab='overview';if(activeToken)closeDetail();activeTab=tab;document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===tab));document.querySelectorAll('[data-tab]').forEach(x=>{x.classList.toggle('active',x.dataset.tab===tab);x.setAttribute('aria-current',x.dataset.tab===tab?'page':'false')});const labels={overview:['Your radar station.','Review reported market caps, FDV and trading pools.'],explore:['Token explorer.','Find the right token. Verify the contract.'],journal:['Research journal.','Turn predictions into testable claims.']};$('page-title').textContent=labels[tab][0];$('page-subtitle').textContent=labels[tab][1];renderOverview();renderJournal();window.scrollTo(0,0)}
+  function setConnection(message,status='none'){$('connection-dot').className='dot'+(status==='live'?' live':'');$('connection-text').textContent=message}
+  async function refreshWatch(silent=false){
+    if(fetchInProgress||!state.watch.length)return;
+    fetchInProgress=true;$('refresh-btn').disabled=true;setConnection('Updating…');let errors=0,updated=0;
+    try{
+      const chains=[...new Set(state.watch.map(x=>x.chain))];
+      for(const chain of chains){
+        const tokens=state.watch.filter(x=>x.chain===chain);
+        for(let i=0;i<tokens.length;i+=20){
+          const batch=tokens.slice(i,i+20);
+          try{
+            const data=await api(`/tokens/v1/${encodeURIComponent(chain)}/${batch.map(x=>encodeURIComponent(x.address)).join(',')}`);
+            for(const entry of batch){
+              const k=key(entry.chain,entry.address),pairs=Array.isArray(data)?data:[];
+              const p=bestPair(pairs,entry.address);
+              // Batch data is not a full pool enumeration. Never replace richer token-pairs results.
+              if(!poolsByToken.has(k)){const initial=aggregatePools(pairs,entry.address);initial.source='DEX batch (limited)';poolsByToken.set(k,initial)}
+              if(p){pairData.set(k,p);recordSample(k,p);updated++}else{pairData.delete(k)}
+            }
+          }catch(e){errors++;console.warn('Price refresh failed:',e)}
+        }
+      }
+      lastUpdate=Date.now();persist();setConnection(errors?'Some sources unavailable':'Prices refreshed',errors?'none':'live');
+      if(errors&&!silent)toast('Some market data could not be refreshed. Try again shortly.');
+      if(!errors&&!updated&&!silent)toast('No indexed trading pool found for tracked tokens.');
+    }catch(e){setConnection('Connection issue');if(!silent)toast('Could not update. Check internet access.');}
+    finally{
+      fetchInProgress=false;$('refresh-btn').disabled=false;
+      renderOverview();renderJournal();if(activeToken)openDetail(activeToken,true);
+      refreshPoolDiscovery();verifyWithGecko();
+    }
+  }
+
+    function addToken(k){const p=searchData.find(x=>key(x.chainId,x.baseToken.address)===k);if(!p){toast('Token no longer in search results. Search again.');return}if(state.watch.some(x=>key(x.chain,x.address)===k)){openDetail(k);return}if(state.watch.length>=MAX_TOKENS){toast(`Watchlist limit is ${MAX_TOKENS} tokens for this version.`);return}const x={chain:p.chainId,address:p.baseToken.address,symbol:p.baseToken.symbol||'?',name:p.baseToken.name||'Unknown',image:isHttp(p.info?.imageUrl)?p.info.imageUrl:''};state.watch.push(x);pairData.set(k,p);recordSample(k,p);persist();renderSearch();renderOverview();renderJournal();toast(`${x.symbol} added. Checking its pool data and independent market cap…`);refreshWatch(true)}
+  async function doSearch(){const q=$('search-input').value.trim();if(q.length<2){toast('Enter at least two characters.');return}if(searchCtrl)searchCtrl.abort();searchCtrl=new AbortController();$('search-btn').disabled=true;$('search-results').innerHTML=emptyState('⏳','Searching live pools…','Fetching publicly indexed token markets.');$('search-status').textContent=`Searching for “${q}”…`;try{const response=await api(`/latest/dex/search?q=${encodeURIComponent(q)}`,searchCtrl.signal);const groups=new Map();for(const p of (response.pairs||[])){if(!cleanPair(p)||!p.baseToken.address)continue;const k=key(p.chainId,p.baseToken.address);const prior=groups.get(k);if(!prior||(num(p.liquidity?.usd)||0)>(num(prior.liquidity?.usd)||0))groups.set(k,p)}searchData=[...groups.values()].sort((a,b)=>(num(b.liquidity?.usd)||0)-(num(a.liquidity?.usd)||0)).slice(0,40);$('search-status').textContent=`Results for “${q}” · Showing the most liquid indexed pool for each token. Double-check blockchain and contract.`;$('clear-results').hidden=false;renderSearch();setConnection('Search connected','live')}catch(e){if(e.name==='AbortError')return;searchData=[];renderSearch();$('search-status').textContent='Search failed. Check your internet connection, or try hosting the HTML file on a static website.';toast(`Live search unavailable: ${e.message}`);setConnection('Connection issue')}finally{$('search-btn').disabled=false}}
+  function saveNote(){if(!activeToken)return;state.notes[activeToken]={thesis:$('note-thesis').value.slice(0,4000),evidence:$('note-evidence').value.slice(0,6000),doubts:$('note-doubts').value.slice(0,4000),updated:Date.now()};persist();renderJournal();toast('Research notes saved in this browser. Use Export for a backup.')}
+  function exportData(){const output={app:'memecoin-radar',version:1,exported:new Date().toISOString(),watch:state.watch,notes:state.notes,samples:state.samples};const blob=new Blob([JSON.stringify(output,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='memecoin-radar-backup.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Export created. Keep the JSON file as a backup.');}
+  async function importData(file){if(!file)return;if(file.size>2e6){toast('That file is too large. Maximum 2 MB.');return}try{const s=JSON.parse(await file.text());if(s.app!=='memecoin-radar'||!Array.isArray(s.watch))throw Error('Not a Memecoin Radar backup.');const watch=s.watch.filter(x=>x&&typeof x.chain==='string'&&/^[\w-]{2,30}$/.test(x.chain)&&typeof x.address==='string'&&/^[\w-]{10,128}$/.test(x.address)).slice(0,MAX_TOKENS).map(x=>({chain:x.chain,address:x.address,symbol:String(x.symbol||'?').slice(0,40),name:String(x.name||'Unknown').slice(0,100),image:isHttp(x.image)?x.image:''}));const keys=new Set(watch.map(x=>key(x.chain,x.address)));state.watch=watch;state.notes={};for(const [k,n] of Object.entries(s.notes||{})){if(keys.has(k)&&n&&typeof n==='object')state.notes[k]={thesis:String(n.thesis||'').slice(0,4000),evidence:String(n.evidence||'').slice(0,6000),doubts:String(n.doubts||'').slice(0,4000)}}state.samples={};for(const [k,arr] of Object.entries(s.samples||{})){if(keys.has(k)&&Array.isArray(arr))state.samples[k]=arr.filter(x=>x&&Number.isFinite(x.t)&&Number.isFinite(x.v)&&x.v>0).slice(-60)}pairData.clear();poolsByToken.clear();geckoPoolsByToken.clear();poolChecks.clear();geckoByToken.clear();geckoChecks.clear();persist();renderOverview();renderJournal();toast(`Imported ${watch.length} tokens. Fetching live market data.`);refreshWatch()}catch(e){toast('Import failed: '+e.message)}finally{$('import-input').value=''}}
+  document.addEventListener('click',e=>{const theme=e.target.closest('[data-theme-toggle]');if(theme){applyTheme(currentTheme==='dark'?'light':'dark');return}const tab=e.target.closest('[data-tab]');if(tab){showTab(tab.dataset.tab);return}const go=e.target.closest('[data-go]');if(go){showTab(go.dataset.go);return}const target=e.target.closest('[data-action]');if(target){let k=target.dataset.key;if(target.dataset.action==='add')addToken(k);if(target.dataset.action==='inspect')openDetail(k)}});
+  document.querySelectorAll('[data-tab]').forEach(x=>x.setAttribute('aria-current',x.dataset.tab==='overview'?'page':'false'));
+  $('search-form').addEventListener('submit',e=>{e.preventDefault();doSearch()});$('sort-select').addEventListener('change',renderOverview);$('refresh-btn').addEventListener('click',()=>refreshWatch());$('detail-refresh').addEventListener('click',()=>refreshWatch());$('back-btn').addEventListener('click',closeDetail);$('detail-content').addEventListener('click',e=>{if(e.target.closest('#save-note'))saveNote()});$('detail-remove').addEventListener('click',()=>{if(!activeToken)return;let x=state.watch.find(x=>key(x.chain,x.address)===activeToken);if(!confirm(`Remove ${x?.symbol||'this token'} from your watchlist? Journal notes are retained in your backup until overwritten.`))return;state.watch=state.watch.filter(x=>key(x.chain,x.address)!==activeToken);pairData.delete(activeToken);poolsByToken.delete(activeToken);geckoPoolsByToken.delete(activeToken);poolChecks.delete(activeToken);geckoByToken.delete(activeToken);geckoChecks.delete(activeToken);persist();closeDetail();renderOverview();renderJournal();toast('Token removed from watchlist.')});$('clear-results').addEventListener('click',()=>{searchData=[];$('search-input').value='';$('search-results').innerHTML=emptyState('🔎','Start a new search','Search by name, symbol, or exact contract address.');$('search-status').textContent='Search across publicly indexed trading pairs.';$('result-count').textContent='0 tokens';$('clear-results').hidden=true});$('export-btn').addEventListener('click',exportData);$('import-btn').addEventListener('click',()=>$('import-input').click());$('import-input').addEventListener('change',e=>importData(e.target.files?.[0]));$('brand').addEventListener('click',e=>{e.preventDefault();showTab('overview')});
+  renderOverview();renderJournal();if(state.watch.length)refreshWatch(true);setInterval(()=>{if(!document.hidden&&state.watch.length)refreshWatch(true)},60000);
+})();
+</script>
+</body>
+</html>
