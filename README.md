@@ -1,4 +1,4 @@
-# Memecoin Radar v1.4
+# Memecoin Radar v1.5
 
 A static, mobile-friendly memecoin research dashboard with a separate virtual-money educational trading simulator. **Not a broker, trading bot, coin-ranking service, or investment recommendation.** It sends no trades, holds no funds, and never requests wallet passwords or recovery phrases.
 
@@ -6,15 +6,15 @@ Live site: https://mobielvanjack-jpg.github.io/memecoin-radar/
 
 Paper Lab: https://mobielvanjack-jpg.github.io/memecoin-radar/paper.html
 
-## Paper Lab (v1.4)
+## Paper Lab (v1.5)
 
-The `paper.html` page is a **virtual-money-only simulator**. It starts each browser with $100 in fictional funds and supports token lookup by symbol or address, simulated purchases and sales, a virtual portfolio, weighted-average cost basis, realized P&L, fees, modeled pool impact, and export/reset of the virtual session. It does not connect to wallets or submit transactions.
+The `paper.html` page is a **virtual-money-only simulator**, redesigned with a chart-first mobile interface, token detail screen, bottom-sheet Buy/Sell controls, quick amount presets, personal activity feed, portfolio, trade history, and light/dark switch. It starts each browser with $100 in fictional funds and supports token lookup by symbol or address, simulated purchases and sales, a virtual portfolio, weighted-average cost basis, realized P&L, fees, modeled pool impact, and export/reset of the virtual session. It does not connect to wallets or submit transactions.
 
-- Token quotes and selected-pool liquidity are fetched from DEX Screener, and simulated orders require a recently refreshed quote (under 2 minutes old).
+- Token quotes and selected-pool liquidity are fetched from DEX Screener, and simulated orders require a recently refreshed quote (under 2 minutes old). Historical candlestick data is requested from GeckoTerminal's pool OHLCV API for 1m, 5m, 15m, and 1h views. If unavailable, the chart clearly states this and does not fabricate candles. Data refreshes only while the webpage is visible.
 - Quotes use a simplified **constant-product (x*y=k)** model assuming USD pool liquidity is split evenly between the two sides. It is **not an executable quote**, especially for concentrated-liquidity and other non-constant-product pools. The real price, platform fees, and realized sale value may differ widely.
 - The model defaults to $0.10 fixed fee, 0.30% variable fee, and $2 minimum simulated gross sale; all three are **configurable illustrations**, not verified FOMO fees.
 - Positions below the modeled minimum sale show that their cash value is unavailable for modeled liquidation. The chart-style value remains separately visible.
-- All paper balances, history, and assumptions are stored **locally in the browser** under `mr-paper-v1`. This data is separate from watchlist and journal data and **does not sync** with optional cloud accounts.
+- All paper balances, history, and assumptions are stored **locally in the browser** under `mr-paper-v1`, retaining compatibility with the prior Paper Lab. This data is separate from watchlist and journal data and **does not sync** with optional cloud accounts.
 - It is an educational simulation rather than a trading recommendation, performance predictor, or guarantee of profits.
 
 
