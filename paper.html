@@ -163,7 +163,7 @@ function estimate(){
   if(m.gross+1e-8<num(db.settings.minimum)){preview.innerHTML+='<p class="note down">Below the configured minimum modeled sale. This is only a simulated venue constraint.</p>';return}
  }
  $('simulate').disabled=false}
-function showSelection(){
+function showSelection(keepDraft=false){
  const q=chosen&&quotes.get(chosen),dest=$('selected');$('order-ui').hidden=!q;
  if(!q){dest.className='empty';dest.textContent='Select a token to inspect a quote.';return}
  dest.className='quote';
@@ -173,7 +173,7 @@ function showSelection(){
  '<div class="kv"><div class="label">Price per token</div><div class="value">'+esc(prec(q.price))+'</div></div>'+
  '<div class="kv"><div class="label">Selected pool liquidity</div><div class="value">'+esc(fmt(q.liquidity))+'</div></div></div>'+
  '<p class="note">Source: DEX Screener · fetched '+age+' seconds ago. This liquidity belongs to one selected pool, not all pools combined.</p>';
- $('amount').value='';renderSide();estimate()}
+ if(!keepDraft)$('amount').value='';renderSide();estimate()}
 function renderSide(){
  $('buy-side').classList.toggle('selected',side==='buy');$('sell-side').classList.toggle('selected',side==='sell');
  $('amount-label').textContent=side==='buy'?'Total virtual USD to spend (includes modeled fees)':'Token units to sell';
@@ -234,15 +234,15 @@ function renderPortfolio(){
  let allQuoted=true,exitTotal=0,openPnl=0;
  const html=items.map(([k,p])=>{
   const q=quotes.get(k),fresh=isFresh(q),mid=fresh?p.quantity*q.price:null,model=fresh?modelSell(p.quantity,q):null;
-  if(!model)allQuoted=false;else{exitTotal+=model.net;openPnl+=model.net-p.basis}
+  if(!model)allQuoted=false;else if(model.gross+1e-8<num(db.settings.minimum)){openPnl-=p.basis}else{exitTotal+=model.net;openPnl+=model.net-p.basis}
   const below=model&&model.gross<num(db.settings.minimum);
   return '<article class="holding"><div class="flex"><div><div class="title">'+esc(p.symbol)+' <span class="tag">'+esc(p.chain)+'</span></div><div class="mono">'+esc(String(p.address).slice(0,20))+'…</div></div><button class="btn tiny" data-holding="'+esc(k)+'">Study / sell virtually</button></div>'+
   '<div class="quote-grid">'+
   '<div class="kv"><div class="label">Quantity</div><div class="value">'+qty(p.quantity)+'</div></div>'+
   '<div class="kv"><div class="label">Cost basis</div><div class="value">'+fmt(p.basis)+'</div></div>'+
   '<div class="kv"><div class="label">Chart-style value</div><div class="value">'+(mid===null?'Unavailable':fmt(mid))+'</div></div>'+
-  '<div class="kv"><div class="label">Modeled full-exit proceeds</div><div class="value">'+(model?fmt(model.net):'Unavailable')+'</div></div></div>'+
-  '<p class="note">'+(model?'Modeled exit P&L: '+fmt(model.net-p.basis)+' · '+Math.round((Date.now()-q.at)/1000)+'s old':'Needs fresh market data; estimated equity incomplete.')+(below?' · Below your model minimum sale.':'')+'</p></article>';
+  '<div class="kv"><div class="label">Modeled full-exit proceeds</div><div class="value">'+(model?(model.gross+1e-8<num(db.settings.minimum)?'Blocked by min':fmt(model.net)):'Unavailable')+'</div></div></div>'+
+  '<p class="note">'+(model?(below?'Under modeled minimum; exit cannot be simulated. ':'Modeled exit P&L: '+fmt(model.net-p.basis)+'. ')+Math.round((Date.now()-q.at)/1000)+'s old':'Needs fresh market data; estimated equity incomplete.')+(below?' · Below your model minimum sale.':'')+'</p></article>';
  }).join('');
  $('holdings').className=items.length?'':'empty';
  $('holdings').innerHTML=items.length?html:'No virtual positions. Try a paper purchase from a supported pool.';
@@ -262,7 +262,7 @@ function renderHistory(){
  $('history').innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Date</th><th>Token</th><th>Action</th><th>Units</th><th>Cash flow</th><th>Fees</th><th>Realized P&L</th></tr></thead><tbody>'+
  db.trades.slice(0,150).map(t=>'<tr><td>'+esc(new Date(t.at).toLocaleString())+'</td><td>'+esc(t.symbol)+'<div class="mono">'+esc(t.chain)+'</div></td><td>'+esc(t.side)+'</td><td>'+qty(t.quantity)+'</td><td>'+esc((t.side==='BUY'?'−':'+')+fmt(t.usd))+'</td><td>'+fmt(t.fee)+'</td><td>'+esc(t.pnl===null?'Not realized':fmt(t.pnl))+'</td></tr>').join('')+'</tbody></table></div>';
 }
-function renderAll(){renderPortfolio();renderHistory();showSelection()}
+function renderAll(){renderPortfolio();renderHistory();showSelection(true)}
 async function loadToken(chain,address){try{
  const response=await json(API+'/token-pairs/v1/'+encodeURIComponent(chain)+'/'+encodeURIComponent(address));
  const p=choosePools(response,chain,address);if(p)return savePair(p);
