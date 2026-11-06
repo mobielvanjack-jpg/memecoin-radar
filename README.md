@@ -1,8 +1,22 @@
-# Memecoin Radar v1.3
+# Memecoin Radar v1.4
 
-A static, mobile-friendly, read-only memecoin research dashboard. **Not a broker, trading bot, coin-ranking service, or investment recommendation.** It sends no trades, holds no funds, and never requests wallet passwords or recovery phrases.
+A static, mobile-friendly memecoin research dashboard with a separate virtual-money educational trading simulator. **Not a broker, trading bot, coin-ranking service, or investment recommendation.** It sends no trades, holds no funds, and never requests wallet passwords or recovery phrases.
 
 Live site: https://mobielvanjack-jpg.github.io/memecoin-radar/
+
+Paper Lab: https://mobielvanjack-jpg.github.io/memecoin-radar/paper.html
+
+## Paper Lab (v1.4)
+
+The `paper.html` page is a **virtual-money-only simulator**. It starts each browser with $100 in fictional funds and supports token lookup by symbol or address, simulated purchases and sales, a virtual portfolio, weighted-average cost basis, realized P&L, fees, modeled pool impact, and export/reset of the virtual session. It does not connect to wallets or submit transactions.
+
+- Token quotes and selected-pool liquidity are fetched from DEX Screener, and simulated orders require a recently refreshed quote (under 2 minutes old).
+- Quotes use a simplified **constant-product (x*y=k)** model assuming USD pool liquidity is split evenly between the two sides. It is **not an executable quote**, especially for concentrated-liquidity and other non-constant-product pools. The real price, platform fees, and realized sale value may differ widely.
+- The model defaults to $0.10 fixed fee, 0.30% variable fee, and $2 minimum simulated gross sale; all three are **configurable illustrations**, not verified FOMO fees.
+- Positions below the modeled minimum sale show that their cash value is unavailable for modeled liquidation. The chart-style value remains separately visible.
+- All paper balances, history, and assumptions are stored **locally in the browser** under `mr-paper-v1`. This data is separate from watchlist and journal data and **does not sync** with optional cloud accounts.
+- It is an educational simulation rather than a trading recommendation, performance predictor, or guarantee of profits.
+
 
 ## What's new
 
@@ -43,8 +57,10 @@ After real accounts have been enabled and tested, the user **explicitly chooses*
 
 ## Development and testing
 
-- The deployed `index.html` is self-contained. During development the JavaScript modules passed syntax checks and their deterministic formulas passed local unit tests; those test harness files are not included in this production repository.
+- The deployed `index.html` and `paper.html` are standalone HTML files. During development the JavaScript modules passed syntax checks and their deterministic formulas passed local unit tests; those test harness files are not included in this production repository.
 - Browser smoke tests used a 393px viewport with mocked DEX Screener, GeckoTerminal, and GDELT responses to check token search, watchlist additions, research checks, comparison, news filter, account-unconfigured state, and theme switching. Live provider uptime and actual Supabase login were **not** validated. No real market data is included in mocks.
+
+- Paper Lab: JavaScript syntax and deterministic fee/constant-product scenarios were checked; a live mobile-browser integration test and real provider connectivity remain unverified.
 
 ## Source docs
 
