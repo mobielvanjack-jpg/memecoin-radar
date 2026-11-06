@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#f7f8f9">
-  <meta name="description" content="Memecoin Radar: a read-only research watchlist with separate market cap, FDV and multi-source data checks.">
-  <title>Memecoin Radar v1.2 | Research dashboard</title>
+  <meta name="description" content="Memecoin Radar: explainable memecoin market-structure research, source checks, and real news links. No buy signals.">
+  <title>Memecoin Radar v1.3 | Token research lab</title>
   <style>
 /* Memecoin Radar 1.2 — restrained light/dark design, no decorative gradients */
 :root{
@@ -21,7 +21,7 @@
   --muted:#a7adb8;--text:#f0f1f3;--green:#77cba0;--red:#ee919b;
   --aqua:#d6dce4;--gold:#c8b687;--action:#eceef1;--action-text:#15171a;--focus:#9babbf;
 }
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
 button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.46;cursor:not-allowed}a{color:var(--aqua)}a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 .shell{display:grid;grid-template-columns:225px minmax(0,1fr);max-width:1460px;margin:auto;min-height:100vh}
 .sidebar{display:flex;flex-direction:column;gap:33px;position:sticky;top:0;height:100vh;padding:29px 15px 24px 20px;border-right:1px solid var(--line);background:var(--panel)}
@@ -45,6 +45,19 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
 @media(min-width:741px){.mobile-metrics{display:none}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
+
+/* v1.3: research pages stay neutral and readable on small screens. */
+.research-card{margin-bottom:12px}.research-card .small-copy{margin-top:6px}
+.research-overview{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0}.research-overview span{border:1px solid var(--line);padding:7px 9px;border-radius:7px;color:var(--muted);font-size:11px}
+.research-checks{display:grid;gap:0}.check-row{border-top:1px solid var(--line);padding:0}.check-row summary{display:flex;justify-content:space-between;gap:12px;align-items:center;cursor:pointer;padding:13px 0;list-style:none}.check-row summary::-webkit-details-marker{display:none}.check-row summary::before{content:'+';order:3;color:var(--muted)}.check-row[open] summary::before{content:'−'}.check-label{font-size:13px;font-weight:650}
+.check-tag{border:1px solid var(--line);color:var(--muted);font-size:10px;font-weight:650;border-radius:6px;padding:5px 7px;white-space:nowrap}.check-tag.review{color:var(--red)}.check-tag.unknown{color:var(--muted)}.check-row p{margin:0 0 8px;font-size:12px;line-height:1.65}.check-row small{display:block;color:var(--muted);font-size:10px;padding-bottom:14px}
+.compare-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:15px 0}.compare-controls label{display:grid;gap:6px;font-size:11px;color:var(--muted);font-weight:650}.compare-controls select{width:100%;min-width:0}
+.compare-table{border:1px solid var(--line);border-radius:9px;overflow:hidden}.compare-row{display:grid;grid-template-columns:1.15fr .85fr .85fr;gap:8px;padding:13px 12px;border-top:1px solid var(--line);font-size:12px}.compare-row:first-child{border-top:0}.compare-head{background:var(--panel2)}.compare-row strong,.compare-row b{overflow-wrap:anywhere}.compare-row span{color:var(--muted)}
+.news-item{margin-bottom:10px}.news-item h3{margin:9px 0;font-size:15px;line-height:1.5}.news-item a{color:var(--text);text-underline-offset:2px}.news-item .small-copy{margin-top:10px}
+.account-box{max-width:710px}.account-box .field-label{margin-top:20px}.account-box .search-field{margin:8px 0 13px}.account-box .search-field input{width:100%}.account-box .split-actions{margin-top:14px}
+.panel-block{margin-bottom:16px}.education-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.education-grid .panel h3{margin:8px 0}.education-grid .panel p{margin:0;color:var(--muted);font-size:12px;line-height:1.65}
+@media(max-width:740px){.education-grid{grid-template-columns:1fr}.mobile-nav .nav-btn{font-size:9px;padding:5px 2px;gap:3px}.mobile-nav{height:calc(66px + env(safe-area-inset-bottom))}.main{padding-bottom:108px}.compare-row{font-size:11px;padding:11px 7px;gap:6px}.compare-controls{gap:7px}.compare-controls select{font-size:11px}}
+
   </style>
 </head>
 <body>
@@ -54,7 +67,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
     <nav class="nav" aria-label="Main menu">
       <button class="nav-btn active" data-tab="overview"><span>▦</span> Overview</button>
       <button class="nav-btn" data-tab="explore"><span>⌕</span> Token explorer</button>
-      <button class="nav-btn" data-tab="journal"><span>▤</span> Research journal</button>
+      <button class="nav-btn" data-tab="research"><span>◎</span> Research lab</button>
+      <button class="nav-btn" data-tab="news"><span>▤</span> News desk</button>
+      <button class="nav-btn" data-tab="journal"><span>✎</span> Research journal</button>
+      <button class="nav-btn" data-tab="account"><span>♙</span> Account & sync</button>
     </nav>
     <div class="sidebar-foot"><div class="source-blurb"><strong><span class="pulse"></span> READ-ONLY RESEARCH</strong><br>Live market data when connected. No wallet connection, no orders, no signals.<br><br>Data: DEX Screener + GeckoTerminal.</div></div>
   </aside>
@@ -82,17 +98,43 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
         <div class="split-actions"><div class="small-copy" id="search-status">Search across publicly indexed trading pairs. Results are grouped by blockchain + token address. Values are labeled by source.</div><button id="clear-results" class="btn ghost small" hidden>Clear results</button></div>
         <div class="title-row"><h2>Search results</h2><span class="pill" id="result-count">0 tokens</span></div><div id="search-results" class="cards"><div class="empty"><div class="emoji">🔎</div><h3>Start with a token name</h3><p>Try a name like CATE or STONK, then confirm the blockchain and contract address before adding it.</p></div></div>
       </section>
+      <section class="section" id="research">
+        <div class="panel panel-block"><div class="eyebrow">RESEARCH LAB</div><h2 style="margin:9px 0">Understand the evidence, not the hype.</h2><p class="small-copy">Every token gets the same transparent checks: liquidity relative to valuation, trading activity, circulating-vs-diluted supply, pool age, volatility, provider disagreements, and promotion. These are research prompts, not predictions or buy recommendations. Missing data is shown as unknown.</p><span class="pill" id="research-count">0 tracked tokens</span></div>
+        <div class="education-grid panel-block">
+          <div class="panel"><div class="eyebrow">VALUE</div><h3>Price × supply</h3><p>Market capitalization depends on the circulating supply assumption. FDV includes more of the potential supply and is not interchangeable with circulating cap.</p></div>
+          <div class="panel"><div class="eyebrow">EXECUTION</div><h3>Liquidity matters</h3><p>A high valuation can coexist with a shallow trading pool. Liquidity is not guaranteed exit value, and pool figures alone cannot estimate your slippage.</p></div>
+          <div class="panel"><div class="eyebrow">ATTENTION</div><h3>Popularity ≠ demand</h3><p>Volume, transaction counts, paid boosts, and headlines describe activity, not fair value or future returns. Wash trading and misleading promotion are possible.</p></div>
+        </div>
+        <div class="title-row"><h2>Compare your watchlist</h2></div>
+        <div class="panel panel-block"><div class="compare-controls"><label>First token<select id="compare-a" class="select" aria-label="First comparison token"></select></label><label>Second token<select id="compare-b" class="select" aria-label="Second comparison token"></select></label></div><div id="research-compare"></div></div>
+        <div class="title-row"><h2>Research checks</h2><span class="mini-tag">No composite score</span></div>
+        <div id="research-list"></div>
+      </section>
+      <section class="section" id="news">
+        <div class="panel panel-block"><div class="eyebrow">NEWS DESK</div><h2 style="margin:9px 0">Find sources. Test the narrative.</h2><p class="small-copy">Search recent, real article links indexed by GDELT for your tracked token names and crypto terms. A title match does not prove the article refers to the exact contract, nor that news caused a market move. Articles are not generated by AI.</p><div class="toolbar" style="margin-top:18px"><select class="select" id="news-token" aria-label="Choose token for news"></select><button class="btn primary" id="news-load" type="button">Find coverage</button><a class="btn small" id="news-search-link" href="https://news.google.com/" rel="noopener noreferrer" target="_blank" hidden>Broader news search ↗</a></div><p class="small-copy" id="news-status">Select a tracked token to search independent news coverage.</p></div>
+        <div id="news-results"><div class="panel small-copy">No articles requested yet. News links will appear here after a search.</div></div>
+        <div class="notice"><strong>Research rule:</strong> A news article can mention a ticker without referencing your particular token. Verify the blockchain, contract identity, event date, and primary-source evidence before drawing any price explanation.</div>
+      </section>
+      <section class="section" id="account">
+        <div class="panel account-box"><div class="eyebrow">ACCOUNT & SYNC</div><h2 style="margin:9px 0">Keep your research across devices</h2><p class="small-copy">Account sync uses optional passwordless email sign-in and a private database with per-user access rules. The app never needs your wallet keys or exchange password. Cloud data is not enabled until the website owner sets up the backend.</p>
+        <div id="account-setup-warning" class="notice" hidden><strong>Cloud accounts aren't active yet.</strong> The operator must create a Supabase project, enable row-level security, configure allowed redirect URLs, and add its public URL and publishable key. Your local watchlist and journal still work.</div>
+        <div class="notice" id="account-identity">Not signed in</div>
+        <form id="account-auth-form" hidden><label class="field-label" for="account-email">Email address</label><label class="search-field"><input id="account-email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com" aria-label="Account email address"></label><button type="submit" id="account-send" class="btn primary">Send sign-in / sign-up link</button><p class="small-copy">New email addresses automatically create accounts after confirmation. Returning users sign in with a fresh link. No password is stored in this app.</p></form>
+        <div id="account-sync-choice" hidden><p class="small-copy" id="account-cloud-details">Checking cloud and local data…</p><div class="split-actions"><button class="btn" data-cloud-choice="cloud">Restore cloud data to this device</button><button class="btn" data-cloud-choice="local">Back up this device to cloud</button></div><p class="small-copy">Choose carefully: the selected source replaces the other. Export your journal backup first if you need both.</p></div>
+        <div class="split-actions"><button class="btn" id="account-signout" type="button" hidden>Sign out</button><span class="small-copy" id="account-sync-state">Cloud backup is not active for this browser.</span></div>
+        <p class="small-copy" role="status" aria-live="polite" id="account-status">Checking account setup…</p><p class="small-copy">Note: local browser data may remain on this device even after signing out. Public GitHub Pages contains no server-side account database.</p></div>
+      </section>
       <section class="section" id="journal">
         <div class="panel" style="margin-bottom:16px"><div class="eyebrow">RESEARCH NOTES</div><h2 style="margin:9px 0">What would prove the prediction wrong?</h2><p class="small-copy" style="max-width:650px">Save a thesis and the evidence that would change your mind. This journal is for research, not buy or sell decisions. Notes stay in this browser unless you export them.</p><div class="toolbar"><button class="btn small" id="export-btn">↓ Export data</button><button class="btn small" id="import-btn">↑ Import data</button><input id="import-input" type="file" accept=".json,application/json" hidden></div></div>
         <div id="journal-list" class="cards"></div>
       </section>
-      <div class="disclaimer">Memecoin Radar v1.2 uses DEX Screener and (when reachable) GeckoTerminal, with market cap and FDV separated. Independent educational tool, not affiliated with FOMO or the data providers. Prices and liquidity may be delayed, incomplete, or different from other platforms. No financial advice or performance predictions. Never paste wallet recovery phrases or private keys into this app.</div>
+      <div class="disclaimer">Memecoin Radar v1.3 uses DEX Screener and (when reachable) GeckoTerminal, with market cap and FDV separated. Independent educational tool, not affiliated with FOMO or the data providers. Prices and liquidity may be delayed, incomplete, or different from other platforms. No investment recommendations or performance predictions. News searches are keyword matches only, not causal claims. Account sync requires separate secure configuration. Never paste wallet recovery phrases or private keys into this app.</div>
     </div>
     <div class="detail-screen" id="detail-screen"><div class="detail-head"><button class="btn" id="back-btn">← Back</button><div class="toolbar"><button class="btn small theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">◐ Theme</button>
           <button class="btn small" id="detail-refresh">↻ Refresh data</button><button class="btn danger small" id="detail-remove">Remove from watchlist</button></div></div><div id="detail-content"></div></div>
   </main>
 </div>
-<nav class="mobile-nav" aria-label="Mobile menu"><button class="nav-btn active" data-tab="overview"><span>▦</span> Overview</button><button class="nav-btn" data-tab="explore"><span>⌕</span> Explore</button><button class="nav-btn" data-tab="journal"><span>▤</span> Journal</button></nav>
+<nav class="mobile-nav" aria-label="Mobile menu"><button class="nav-btn active" data-tab="overview"><span>▦</span> Home</button><button class="nav-btn" data-tab="explore"><span>⌕</span> Explore</button><button class="nav-btn" data-tab="research"><span>◎</span> Research</button><button class="nav-btn" data-tab="news"><span>▤</span> News</button><button class="nav-btn" data-tab="journal"><span>✎</span> Journal</button><button class="nav-btn" data-tab="account"><span>♙</span> Account</button></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 (() => {
@@ -128,7 +170,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
     try{localStorage.setItem(THEME_STORE,currentTheme)}catch(e){}
   }
   applyTheme(currentTheme);
-  const persist = () => {try{localStorage.setItem(STORE,JSON.stringify(state))}catch{toast('Could not save to browser storage. Free up space or check private browsing.')}};
+  const persist = () => {try{localStorage.setItem(STORE,JSON.stringify(state));window.dispatchEvent(new CustomEvent('mr:data-change'))}catch{toast('Could not save to browser storage. Free up space or check private browsing.')}};
   const toast = msg => {const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastHandle);toastHandle=setTimeout(()=>el.classList.remove('show'),4500)};
   const cleanPair = p => {if(!p || !p.baseToken || !p.chainId || !p.pairAddress)return null;return p};
   const bestPair = (pairs, address) => (pairs||[]).filter(p=>cleanPair(p) && p.baseToken.address?.toLowerCase()===address?.toLowerCase()).sort((a,b)=>(num(b.liquidity?.usd)||0)-(num(a.liquidity?.usd)||0))[0]||null;
@@ -217,7 +259,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
           if(best){pairData.set(k,best);recordSample(k,best)}
         }catch(e){console.warn('DEX token pool lookup failed:',e)}
       }
-    }finally{poolBusy=false;renderOverview();if(activeToken)openDetail(activeToken,true)}
+    }finally{poolBusy=false;renderOverview();if(activeToken)openDetail(activeToken,true);window.dispatchEvent(new Event('mr:market-change'))}
   }
   async function verifyWithGecko(){
     if(geckoBusy||Date.now()<geckoBlockedUntil)return;
@@ -233,7 +275,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
           catch(e){console.warn('GeckoTerminal pool list unavailable:',e)}
         }catch(e){console.warn('GeckoTerminal verification unavailable:',e);geckoBlockedUntil=Date.now()+300000;break}
       }
-    }finally{geckoBusy=false;renderOverview();if(activeToken)openDetail(activeToken,true)}
+    }finally{geckoBusy=false;renderOverview();if(activeToken)openDetail(activeToken,true);window.dispatchEvent(new Event('mr:market-change'))}
   }
   const listPoolEntry=(url,dex,description,amount)=>`<a class="pool-entry" href="${safe(url)}" target="_blank" rel="noopener noreferrer"><span><b>${safe(dex)}</b><small>${safe(description)}</small></span><span class="pool-value">${compact(amount)}<small>pool liquidity</small></span><span aria-hidden="true">↗</span></a>`;
   function makePoolSection(title,pairs,sourceTime,entry,coverage){
@@ -296,12 +338,12 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
   }
   function detailMarkup(d){const p=d.p,n=state.notes[d.k]||{},change=p?.priceChange?.h24,cap=marketInfo(d),gecko=geckoByToken.get(d.k)?.attributes,pools=poolsByToken.get(d.k);const metric=(label,value)=>`<div class="info-box"><div class="stat-k">${label}</div><strong>${value}</strong></div>`;const diffs=['m5','h1','h6','h24'].map(t=>`<div class="time-cell"><span>${({m5:'5 min',h1:'1 hour',h6:'6 hours',h24:'24 hours'})[t]}</span><strong class="${polarity(p?.priceChange?.[t])}">${pc(p?.priceChange?.[t])}</strong></div>`).join('');
     const link=p?.url&&isHttp(p.url)?p.url:`https://dexscreener.com/${encodeURIComponent(d.chain)}/${encodeURIComponent(p?.pairAddress||d.address)}`;
-    return `<div class="detail-grid"><div style="display:grid;gap:14px;align-content:start"><div class="panel detail-hero"><div class="identity">${avatar(p,d.symbol,d.image)}<div><div class="detail-symbol">${safe(d.symbol)}</div><div class="small-copy">${safe(d.name)} · ${safe(d.chain)}</div></div></div><div class="split-actions" style="margin-top:20px;gap:14px"><div><div class="stat-k">Current USD price</div><div class="detail-symbol">${money(p?.priceUsd)}</div></div><div class="detail-change ${polarity(change)}">${pc(change)} <small style="font-weight:500;color:var(--muted)">24h</small></div></div><div class="timeframes">${diffs}</div><div class="spark-wrap">${sparkline(d.k)}</div><div class="journal-hint">Trend line is based only on samples recorded while this app was refreshed. It is not a full price chart.</div><div class="info-grid">${metric('Circulating market cap',cap.value!==null?compact(cap.value):'Not verified')}${metric('Fully diluted valuation',compact(cap.fdv))}${metric('Selected pool liquidity',compact(p?.liquidity?.usd))}${metric('DEX pools found · liquidity',pools?compact(pools.usd):'Checking…')}${metric('Gecko token reserve figure',compact(gecko?.total_reserve_in_usd))}${metric('DEX API marketCap field',compact(p?.marketCap))}${metric('Pool 24h volume',compact(p?.volume?.h24))}${metric('Pool age',age(p?.pairCreatedAt))}${metric('DEX',safe(p?.dexId||'Unknown'))}${metric('Active paid boosts',p?.boosts?.active??'Not listed')}</div><div class="audit-panel"><div class="eyebrow">SOURCE COMPARISON · AUTOMATIC</div>${dataAudit(d)}</div><div class="title-row"><h3>Trading pools</h3><span class="mini-tag">Two sources · kept separate</span></div>${poolRows(d)}<a class="ref-url" rel="noopener noreferrer" target="_blank" href="${safe(link)}">Open selected pair on DEX Screener ↗</a><p class="small-copy" style="overflow-wrap:anywhere">Token contract: <code>${safe(d.address)}</code><br>Pool: <code>${safe(p?.pairAddress||'Unknown')}</code></p></div><div class="panel"><h3>🔍 Things worth checking</h3><p class="small-copy">Automated observations based on limited public pool data. Not a risk rating.</p>${observations(p).map(s=>`<div class="risk-item"><i>•</i>${safe(s)}</div>`).join('')}</div></div>
+    return `<div class="detail-grid"><div style="display:grid;gap:14px;align-content:start"><div class="panel detail-hero"><div class="identity">${avatar(p,d.symbol,d.image)}<div><div class="detail-symbol">${safe(d.symbol)}</div><div class="small-copy">${safe(d.name)} · ${safe(d.chain)}</div></div></div><div class="split-actions" style="margin-top:20px;gap:14px"><div><div class="stat-k">Current USD price</div><div class="detail-symbol">${money(p?.priceUsd)}</div></div><div class="detail-change ${polarity(change)}">${pc(change)} <small style="font-weight:500;color:var(--muted)">24h</small></div></div><div class="timeframes">${diffs}</div><div class="spark-wrap">${sparkline(d.k)}</div><div class="journal-hint">Trend line is based only on samples recorded while this app was refreshed. It is not a full price chart.</div><div class="info-grid">${metric('Circulating market cap',cap.value!==null?compact(cap.value):'Not available')}${metric('Fully diluted valuation',compact(cap.fdv))}${metric('Selected pool liquidity',compact(p?.liquidity?.usd))}${metric('DEX pools found · liquidity',pools?compact(pools.usd):'Checking…')}${metric('Gecko token reserve figure',compact(gecko?.total_reserve_in_usd))}${metric('DEX API marketCap field',compact(p?.marketCap))}${metric('Pool 24h volume',compact(p?.volume?.h24))}${metric('Pool age',age(p?.pairCreatedAt))}${metric('DEX',safe(p?.dexId||'Unknown'))}${metric('Active paid boosts',p?.boosts?.active??'Not listed')}</div><div class="audit-panel"><div class="eyebrow">SOURCE COMPARISON · AUTOMATIC</div>${dataAudit(d)}</div><div class="title-row"><h3>Trading pools</h3><span class="mini-tag">Two sources · kept separate</span></div>${poolRows(d)}<a class="ref-url" rel="noopener noreferrer" target="_blank" href="${safe(link)}">Open selected pair on DEX Screener ↗</a><p class="small-copy" style="overflow-wrap:anywhere">Token contract: <code>${safe(d.address)}</code><br>Pool: <code>${safe(p?.pairAddress||'Unknown')}</code></p></div><div class="panel"><h3>🔍 Things worth checking</h3><p class="small-copy">Automated observations based on limited public pool data. Not a risk rating.</p>${observations(p).map(s=>`<div class="risk-item"><i>•</i>${safe(s)}</div>`).join('')}</div></div>
     <div class="panel" style="align-self:start"><div class="eyebrow">YOUR PRIVATE RESEARCH JOURNAL</div><h2 style="margin:10px 0 6px">${safe(d.symbol)} thesis</h2><p class="small-copy">What is the claim? What evidence supports it? What would falsify it?</p><label class="field-label" for="note-thesis">The claim / prediction</label><textarea id="note-thesis" class="textarea" placeholder="Example: The community believes this token will overtake another token.">${safe(n.thesis||'')}</textarea><label class="field-label" for="note-evidence">Evidence and sources</label><textarea id="note-evidence" class="textarea" placeholder="Use specific dates, numbers, and source links. Avoid relying on hype alone.">${safe(n.evidence||'')}</textarea><label class="field-label" for="note-doubts">Counterarguments / unknowns</label><textarea id="note-doubts" class="textarea" placeholder="What data is missing? What would change your opinion?">${safe(n.doubts||'')}</textarea><div class="split-actions" style="margin-top:13px"><button id="save-note" class="btn primary">Save journal</button><span class="tiny muted">Saved in this browser only</span></div></div></div>`
   }
   function openDetail(k, preserveDrafts=false){let d=state.watch.map(itemData).find(x=>x.k===k);if(!d){toast('Add this token to your watchlist first.');return}let fields=['note-thesis','note-evidence','note-doubts'];let draft=preserveDrafts?fields.map(id=>$(id)?.value??null):null;activeToken=k;$('regular-view').hidden=true;$('detail-screen').classList.add('active');$('detail-content').innerHTML=detailMarkup(d);if(draft)fields.forEach((id,i)=>{if(draft[i]!==null)$(id).value=draft[i]});if(!preserveDrafts)window.scrollTo(0,0)}
   function closeDetail(){activeToken=null;$('regular-view').hidden=false;$('detail-screen').classList.remove('active');showTab(activeTab)}
-  function showTab(tab){if(!['overview','explore','journal'].includes(tab))tab='overview';if(activeToken)closeDetail();activeTab=tab;document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===tab));document.querySelectorAll('[data-tab]').forEach(x=>{x.classList.toggle('active',x.dataset.tab===tab);x.setAttribute('aria-current',x.dataset.tab===tab?'page':'false')});const labels={overview:['Your radar station.','Review reported market caps, FDV and trading pools.'],explore:['Token explorer.','Find the right token. Verify the contract.'],journal:['Research journal.','Turn predictions into testable claims.']};$('page-title').textContent=labels[tab][0];$('page-subtitle').textContent=labels[tab][1];renderOverview();renderJournal();window.scrollTo(0,0)}
+  function showTab(tab){if(!['overview','explore','research','news','journal','account'].includes(tab))tab='overview';if(activeToken)closeDetail();activeTab=tab;document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===tab));document.querySelectorAll('[data-tab]').forEach(x=>{x.classList.toggle('active',x.dataset.tab===tab);x.setAttribute('aria-current',x.dataset.tab===tab?'page':'false')});const labels={overview:['Your radar station.','Live token metrics and your watchlist.'],explore:['Token explorer.','Search and confirm contracts, never ticker alone.'],research:['Research lab.','Evidence-based checks, not buy signals.'],news:['News desk.','Check real reporting without inventing causal links.'],journal:['Research journal.','Turn predictions into testable claims.'],account:['Account & sync.','Your optional private cloud research workspace.']};$('page-title').textContent=labels[tab][0];$('page-subtitle').textContent=labels[tab][1];renderOverview();renderJournal();window.dispatchEvent(new CustomEvent('mr:tab-change',{detail:tab}));window.scrollTo(0,0)}
   function setConnection(message,status='none'){$('connection-dot').className='dot'+(status==='live'?' live':'');$('connection-text').textContent=message}
   async function refreshWatch(silent=false){
     if(fetchInProgress||!state.watch.length)return;
@@ -343,8 +385,218 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
   document.addEventListener('click',e=>{const theme=e.target.closest('[data-theme-toggle]');if(theme){applyTheme(currentTheme==='dark'?'light':'dark');return}const tab=e.target.closest('[data-tab]');if(tab){showTab(tab.dataset.tab);return}const go=e.target.closest('[data-go]');if(go){showTab(go.dataset.go);return}const target=e.target.closest('[data-action]');if(target){let k=target.dataset.key;if(target.dataset.action==='add')addToken(k);if(target.dataset.action==='inspect')openDetail(k)}});
   document.querySelectorAll('[data-tab]').forEach(x=>x.setAttribute('aria-current',x.dataset.tab==='overview'?'page':'false'));
   $('search-form').addEventListener('submit',e=>{e.preventDefault();doSearch()});$('sort-select').addEventListener('change',renderOverview);$('refresh-btn').addEventListener('click',()=>refreshWatch());$('detail-refresh').addEventListener('click',()=>refreshWatch());$('back-btn').addEventListener('click',closeDetail);$('detail-content').addEventListener('click',e=>{if(e.target.closest('#save-note'))saveNote()});$('detail-remove').addEventListener('click',()=>{if(!activeToken)return;let x=state.watch.find(x=>key(x.chain,x.address)===activeToken);if(!confirm(`Remove ${x?.symbol||'this token'} from your watchlist? Journal notes are retained in your backup until overwritten.`))return;state.watch=state.watch.filter(x=>key(x.chain,x.address)!==activeToken);pairData.delete(activeToken);poolsByToken.delete(activeToken);geckoPoolsByToken.delete(activeToken);poolChecks.delete(activeToken);geckoByToken.delete(activeToken);geckoChecks.delete(activeToken);persist();closeDetail();renderOverview();renderJournal();toast('Token removed from watchlist.')});$('clear-results').addEventListener('click',()=>{searchData=[];$('search-input').value='';$('search-results').innerHTML=emptyState('🔎','Start a new search','Search by name, symbol, or exact contract address.');$('search-status').textContent='Search across publicly indexed trading pairs.';$('result-count').textContent='0 tokens';$('clear-results').hidden=true});$('export-btn').addEventListener('click',exportData);$('import-btn').addEventListener('click',()=>$('import-input').click());$('import-input').addEventListener('change',e=>importData(e.target.files?.[0]));$('brand').addEventListener('click',e=>{e.preventDefault();showTab('overview')});
+
+  // Narrow public interface for research and optional cloud modules. No trading actions.
+  window.MR_APP={
+    getWatched:()=>state.watch.map(x=>{const d=itemData(x);return {...d,market:marketInfo(d),dexPools:poolsByToken.get(d.k)||null,geckoPools:geckoPoolsByToken.get(d.k)||null}}),
+    getWorkspace:()=>JSON.parse(JSON.stringify({watch:state.watch,notes:state.notes,samples:state.samples})),
+    openDetail:k=>openDetail(k),
+    replaceWorkspace:incoming=>{
+      if(!incoming||!Array.isArray(incoming.watch))throw Error('Invalid backup format');
+      const watch=incoming.watch.filter(x=>x&&typeof x.chain==='string'&&/^[\w-]{2,30}$/.test(x.chain)&&typeof x.address==='string'&&/^[\w-]{10,128}$/.test(x.address)).slice(0,MAX_TOKENS).map(x=>({chain:x.chain,address:x.address,symbol:String(x.symbol||'?').slice(0,40),name:String(x.name||'Unknown').slice(0,100),image:isHttp(x.image)?x.image:''}));
+      const keys=new Set(watch.map(x=>key(x.chain,x.address))),notes={},samples={};
+      for(const [k,n] of Object.entries(incoming.notes||{}))if(keys.has(k)&&n&&typeof n==='object')notes[k]={thesis:String(n.thesis||'').slice(0,4000),evidence:String(n.evidence||'').slice(0,6000),doubts:String(n.doubts||'').slice(0,4000),updated:num(n.updated)||0};
+      for(const [k,a] of Object.entries(incoming.samples||{}))if(keys.has(k)&&Array.isArray(a))samples[k]=a.filter(x=>x&&Number.isFinite(x.t)&&Number.isFinite(x.v)&&x.v>0).slice(-60);
+      state={watch,notes,samples};pairData.clear();poolsByToken.clear();geckoPoolsByToken.clear();geckoByToken.clear();poolChecks.clear();geckoChecks.clear();persist();renderOverview();renderJournal();refreshWatch(true);
+    }
+  };
   renderOverview();renderJournal();if(state.watch.length)refreshWatch(true);setInterval(()=>{if(!document.hidden&&state.watch.length)refreshWatch(true)},60000);
 })();
+</script>
+<script>
+/* Embedded research-engine.js for single-file GitHub Pages deployment */
+/* Memecoin Radar v1.3 research engine. Pure, deterministic, source-labelled checks.
+   These are descriptive checks, never recommendations or probability estimates. */
+(function (root, factory) {
+  const engine = factory();
+  if (typeof module !== 'undefined' && module.exports) module.exports = engine;
+  if (root) root.MR_ENGINE = engine;
+})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null), function () {
+  'use strict';
+  const number = v => v === null || v === undefined || v === '' || !Number.isFinite(Number(v)) ? null : Number(v);
+  const validPositive = v => {const n = number(v); return n !== null && n > 0 ? n : null;};
+  const ratio = (a, b) => { const x=validPositive(a), y=validPositive(b); return x === null || y === null ? null : x / y; };
+  const check = (id,title,status,detail,source) => ({id,title,status,detail,source});
+  const money = value => { const n=number(value);if(n===null)return 'unavailable';return '$'+n.toLocaleString('en-US',{maximumFractionDigits:2}); };
+  const pct = value => `${(value*100).toFixed(value*100<1?2:1)}%`;
+  function evaluate({pair,market,dexPools,geckoPools,now=Date.now()}) {
+    const checks = [];
+    const cap = validPositive(market?.value);
+    const fdv = validPositive(market?.fdv);
+    const liquidity = validPositive(pair?.liquidity?.usd);
+    const volume = number(pair?.volume?.h24);
+    const created = number(pair?.pairCreatedAt);
+    const ageDays=created!==null&&created>0 ? Math.max(0,(now-created)/86400000) : null;
+    const change24=number(pair?.priceChange?.h24), change1=number(pair?.priceChange?.h1);
+    const capRatio=ratio(liquidity,cap);
+    const fdvRatio=ratio(fdv,cap);
+    const turnover=volume!==null && volume>=0 ? ratio(volume,liquidity) : null;
+    if(capRatio===null) checks.push(check('depth','Liquidity vs circulating cap','unknown','Cannot calculate: selected-pool liquidity or circulating market cap is unavailable.','Selected DEX pool + cap provider'));
+    else checks.push(check('depth','Liquidity vs circulating cap',capRatio<.01?'review':'context',`Selected pool liquidity is ${pct(capRatio)} of reported circulating cap. ${capRatio<.01?'Relatively little liquidity against valuation may increase price impact.':'This is only one pool, not all executable liquidity or a slippage estimate.'}`,'DEX Screener selected pool + reported cap'));
+    if(turnover===null)checks.push(check('turnover','24h volume vs pool liquidity','unknown','Volume and/or selected-pool liquidity unavailable.','DEX Screener'));
+    else checks.push(check('turnover','24h volume vs pool liquidity',turnover>5?'review':'context',`Reported 24h volume is ${turnover.toFixed(2)}× selected-pool liquidity. ${turnover>5?'Heavy turnover is worth investigating for rapid churn or artificial activity.':'Turnover describes activity, not future price direction.'}`,'DEX Screener'));
+    if(fdvRatio===null) checks.push(check('supply','Circulating vs diluted valuation','unknown','Both circulating market cap and FDV are needed to compare supply valuations.','DEX Screener + cap provider'));
+    else checks.push(check('supply','Circulating vs diluted valuation',fdvRatio>1.25?'review':'context',`FDV is ${fdvRatio.toFixed(2)}× circulating cap. ${fdvRatio>1.25?'The valuation gap indicates non-circulating supply or differing estimates; check actual tokenomics and unlock schedules separately.':'The two reported valuation measures are relatively close, which still does not prove supply safety.'}`,'Source-labelled circulating cap + FDV'));
+    if(ageDays===null) checks.push(check('age','Age of selected trading pool','unknown','No reliable pool creation timestamp returned.','DEX Screener'));
+    else checks.push(check('age','Age of selected trading pool',ageDays<3?'review':'context',`The selected pool is about ${ageDays<1?Math.max(1,Math.floor(ageDays*24))+' hours':Math.floor(ageDays)+' days'} old. ${ageDays<3?'Very new pools have limited observable history.':'Pool age is not token age or a measure of trustworthiness.'}`,'DEX Screener pairCreatedAt'));
+    if(change24===null) checks.push(check('swing','24h price move','unknown','24h percent price change unavailable.','DEX Screener'));
+    else checks.push(check('swing','24h price move',Math.abs(change24)>25?'review':'context',`24h change: ${change24>0?'+':''}${change24.toFixed(2)}%. ${Math.abs(change24)>25?'Large price swings imply meaningful volatility.':'Small daily moves are not evidence of stability.'}${change1===null?'':` Last 1h: ${change1>0?'+':''}${change1.toFixed(2)}%.`}`,'DEX Screener'));
+    if(market?.dexCap && market?.gtCap){
+      const discrep=Math.abs(market.dexCap-market.gtCap)/market.gtCap;
+      checks.push(check('sources','Cross-provider valuation check',discrep>.10?'review':'context',`DEX API cap vs GeckoTerminal cap differs by ${pct(discrep)}. ${market.dexLooksLikeFDV?'DEX API value closely resembles FDV, so it must not be used as circulating market cap.':'The providers may use different supplies or timestamps; investigate before comparing.'}`,'DEX Screener + GeckoTerminal'));
+    } else checks.push(check('sources','Cross-provider valuation check','unknown','Two provider-reported circulating caps are not available for a like-for-like check.','DEX Screener + GeckoTerminal'));
+    const buys=number(pair?.txns?.h24?.buys), sells=number(pair?.txns?.h24?.sells);
+    if(buys===null || sells===null)checks.push(check('trades','Transaction-count context','unknown','24h buy/sell transaction counts unavailable.','DEX Screener'));
+    else checks.push(check('trades','Transaction-count context',buys+sells<40?'review':'context',`${buys.toLocaleString()} buys, ${sells.toLocaleString()} sells in 24h. These are transaction counts, NOT dollar buy/sell volumes, and cannot prove net demand.`,'DEX Screener'));
+    const boosts=number(pair?.boosts?.active);
+    if(boosts!==null && boosts>0) checks.push(check('promotion','Paid promotional activity','review',`${boosts} active boost(s) reported. Boosted exposure is paid attention, not independent validation.`,'DEX Screener'));
+    else checks.push(check('promotion','Paid promotional activity','context',`No active boosts reported for the selected pool. This does not rule out other marketing.`,'DEX Screener'));
+    const dsCount=dexPools?.pairs?.length, gtCount=geckoPools?.pairs?.length;
+    if(dsCount===undefined && gtCount===undefined)checks.push(check('pools','Trading pool coverage','unknown','Token-level pool discovery is pending or unavailable.','DEX Screener + GeckoTerminal'));
+    else checks.push(check('pools','Trading pool coverage','context',`Indexed pools found: DEX Screener ${dsCount??'not checked'}, GeckoTerminal ${gtCount??'not checked'}. ${geckoPools?.partial?'GeckoTerminal pagination was limited. ':''}These inventories may overlap or be incomplete; do not sum their liquidity totals.`,'Provider-specific token-pool endpoints'));
+    return {checks, review:checks.filter(x=>x.status==='review').length,unknown:checks.filter(x=>x.status==='unknown').length,metrics:{cap,fdv,liquidity,volume,capRatio,fdvRatio,turnover,ageDays,change24,buys,sells}, dataCount:checks.length-checks.filter(x=>x.status==='unknown').length};
+  }
+  return {evaluate, number, ratio, money, pct};
+});
+
+</script>
+<script>
+/* Embedded research.js for single-file GitHub Pages deployment */
+/* Research Lab + news desk. Uses existing v1.2 market cache; no trades, scoring, or price predictions. */
+(()=>{
+ 'use strict';
+ const app=window.MR_APP, engine=window.MR_ENGINE;
+ if(!app||!engine){console.error('Research dependencies unavailable');return}
+ const $=id=>document.getElementById(id), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const fmt=(v,prefix='$')=>{let n=engine.number(v);if(n===null)return 'N/A';let a=Math.abs(n),s=a>=1e9?'B':a>=1e6?'M':a>=1e3?'K':'',d=s==='B'?1e9:s==='M'?1e6:s==='K'?1e3:1;return `${n<0?'-':''}${prefix}${(a/d).toLocaleString('en-US',{maximumFractionDigits:2})}${s}`};
+ let chosen='',newsCache=new Map(),newsInFlight=false,selectedNews='';
+ function empty(title,msg){return `<div class="empty"><h3>${esc(title)}</h3><p>${esc(msg)}</p><button class="btn" data-go="explore">Explore tokens</button></div>`}
+ function watched(){return app.getWatched()}
+ function tokenOptions(list,selected){return list.map(x=>`<option value="${esc(x.k)}" ${x.k===selected?'selected':''}>${esc(x.symbol)} · ${esc(x.chain)} · ${esc(x.address.slice(0,5))}…</option>`).join('')}
+ function report(d){return engine.evaluate({pair:d.p,market:d.market,dexPools:d.dexPools,geckoPools:d.geckoPools})}
+ function renderResearch(){
+   const list=watched(); const el=$('research-list');if(!el)return;
+   if(!list.length){el.innerHTML=empty('Start by adding a token','Once you track a token, its liquidity, supply valuation, trading activity, and evidence gaps appear here.');$('research-compare').innerHTML='';return}
+   const reports=list.map(d=>({d,r:report(d)}));
+   $('research-count').textContent=`${reports.length} tracked token${reports.length===1?'':'s'}`;
+   el.innerHTML=reports.map(({d,r})=>`<article class="panel research-card"><div class="split-actions"><div><h3>${esc(d.symbol)} <span class="muted tiny">${esc(d.chain)}</span></h3><div class="small-copy" style="overflow-wrap:anywhere">${esc(d.address)}</div></div><button class="btn small" data-research-open="${esc(d.k)}">Open details ↗</button></div><div class="research-overview"><span>${r.review} areas to review</span><span>${r.unknown} missing checks</span><span>${r.dataCount}/${r.checks.length} available</span></div><div class="research-checks">${r.checks.map(c=>`<details class="check-row"><summary><span class="check-label">${esc(c.title)}</span><span class="check-tag ${c.status}">${c.status==='review'?'Review':c.status==='unknown'?'Not available':'Context'}</span></summary><p>${esc(c.detail)}</p><small>Source: ${esc(c.source)}</small></details>`).join('')}</div></article>`).join('');
+   const compare=$('research-compare'); const chooseA=$('compare-a'),chooseB=$('compare-b');const a=chooseA?.value&&list.some(x=>x.k===chooseA.value)?chooseA.value:list[0].k;const b=chooseB?.value&&list.some(x=>x.k===chooseB.value)?chooseB.value:(list[1]?.k||list[0].k);
+   if(chooseA)chooseA.innerHTML=tokenOptions(list,a);if(chooseB)chooseB.innerHTML=tokenOptions(list,b);
+   const first=list.find(x=>x.k===a),second=list.find(x=>x.k===b);if(!first||!second)return;
+   const ra=report(first),rb=report(second);
+   const rows=[['Circulating market cap',ra.metrics.cap,rb.metrics.cap,'money'],['Fully diluted valuation',ra.metrics.fdv,rb.metrics.fdv,'money'],['Selected pool liquidity',ra.metrics.liquidity,rb.metrics.liquidity,'money'],['24h volume / selected pool liquidity',ra.metrics.turnover,rb.metrics.turnover,'x'],['FDV / circulating cap',ra.metrics.fdvRatio,rb.metrics.fdvRatio,'x'],['Pool age (days)',ra.metrics.ageDays,rb.metrics.ageDays,'days'],['24h price change',ra.metrics.change24,rb.metrics.change24,'%']];
+   const val=(v,format)=>v===null?'N/A':format==='money'?fmt(v):format==='x'?`${v.toFixed(2)}×`:format==='days'?v.toFixed(1):`${v>0?'+':''}${v.toFixed(2)}%`;
+   compare.innerHTML=`<div class="compare-table"><div class="compare-row compare-head"><b>Metric</b><b>${esc(first.symbol)} · ${esc(first.chain)}</b><b>${esc(second.symbol)} · ${esc(second.chain)}</b></div>${rows.map(([name,v1,v2,format])=>`<div class="compare-row"><span>${esc(name)}</span><strong>${val(v1,format)}</strong><strong>${val(v2,format)}</strong></div>`).join('')}</div><p class="small-copy">Comparisons are descriptive, not buy rankings. Liquidity is for the selected pool only; token ages and security have not been verified.</p>`;
+ }
+ function renderNewsChooser(){const list=watched(),select=$('news-token');if(!select)return;const val=select.value||selectedNews;select.innerHTML=list.length?tokenOptions(list,list.find(x=>x.k===val)?.k||list[0].k):'<option value="">No tokens tracked</option>';select.disabled=!list.length;$('news-load').disabled=!list.length;
+   if(!list.length)$('news-results').innerHTML=empty('Add a token first','News discovery uses your watchlist and never associates a headline with a random token of the same ticker.');}
+ function safeUrl(s){try{const u=new URL(s);return u.protocol==='https:'?u.href:null}catch{return null}}
+ function filteredArticles(articles,d){const tokenTerms=[d.symbol,d.name].filter(x=>x&&x.length>=3).map(x=>x.toLowerCase());const seen=new Set();return articles.filter(a=>{const url=safeUrl(a.url),title=String(a.title||'');if(!url||!title||seen.has(url))return false;seen.add(url);return tokenTerms.some(s=>new RegExp('(^|[^a-z0-9])'+s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z0-9]|$)','i').test(title))}).slice(0,8)}
+ async function loadNews(){const k=$('news-token').value,d=watched().find(x=>x.k===k);if(!d||newsInFlight)return;selectedNews=k;
+   const google=`https://news.google.com/search?q=${encodeURIComponent('"'+d.symbol+'" crypto '+d.chain)}`;
+   const ext=$('news-search-link');ext.href=google;ext.hidden=false;const status=$('news-status');const target=$('news-results');
+   if(newsCache.has(k) && Date.now()-newsCache.get(k).time<300000){showArticles(newsCache.get(k).articles,d);status.textContent='Previously fetched results (up to 5 minutes old).';return}
+   newsInFlight=true;$('news-load').disabled=true;status.textContent=`Searching recent coverage mentioning ${d.symbol}…`;target.innerHTML='<div class="panel small-copy">Checking independent news indexing…</div>';
+   try{
+     // GDELT's public ArticleList endpoint reports real article URLs. Search results are NOT evidence of causation.
+     // Include crypto context to avoid generic symbols producing unrelated headlines.
+     const title=String(d.name||d.symbol).replace(/["()]/g,' ').trim().slice(0,55);const sym=String(d.symbol).replace(/["()]/g,' ').trim().slice(0,25);
+     const q=`("${title}" OR "${sym}") (crypto OR cryptocurrency OR memecoin)`;
+     const params=new URLSearchParams({query:q,mode:'artlist',format:'json',maxrecords:'40',timespan:'1week',sort:'datedesc'});
+     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+     let response;try{response=await fetch(`https://api.gdeltproject.org/api/v2/doc/doc?${params}`,{headers:{Accept:'application/json'},signal:controller.signal});}finally{clearTimeout(timer)}
+     if(!response.ok)throw Error(`News index HTTP ${response.status}`);
+     const payload=await response.json();const articles=filteredArticles(Array.isArray(payload.articles)?payload.articles:[],d);
+     newsCache.set(k,{time:Date.now(),articles});showArticles(articles,d);status.textContent=`${articles.length} article title match${articles.length===1?'':'es'} found in the last week · GDELT indexed results.`;
+   }catch(err){target.innerHTML='<div class="panel"><p>Live news indexing is unavailable right now. You can still search reputable news sources directly using the link above.</p><p class="small-copy">No headlines have been invented or cached as facts.</p></div>';status.textContent=err.name==='AbortError'?'News request timed out.':'News index could not be reached.';}
+   finally{newsInFlight=false;$('news-load').disabled=false}
+ }
+ function showArticles(articles,d){const target=$('news-results');if(!articles.length){target.innerHTML='<div class="panel"><h3>No matching article titles</h3><p class="small-copy">No matching indexed titles were found. That is not proof that no coverage exists. Try the external news search above.</p></div>';return}
+   target.innerHTML=articles.map(a=>{const url=safeUrl(a.url);const date=/^\d{14}$/.test(String(a.seendate||''))?`${String(a.seendate).slice(0,4)}-${String(a.seendate).slice(4,6)}-${String(a.seendate).slice(6,8)}`:'Date unavailable';let host='News source';try{host=new URL(url).hostname.replace(/^www\./,'')}catch{}return `<article class="panel news-item"><div class="eyebrow">${esc(host)} · indexed ${esc(date)}</div><h3><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)}</a></h3><div class="small-copy">Keyword match for ${esc(d.symbol)}. Token identity, article accuracy and price impact are not independently verified.</div></article>`}).join('');}
+ document.addEventListener('click',e=>{const open=e.target.closest('[data-research-open]');if(open)app.openDetail(open.dataset.researchOpen);});
+ $('research-list')?.addEventListener('toggle',()=>{},true);
+ $('compare-a')?.addEventListener('change',renderResearch);$('compare-b')?.addEventListener('change',renderResearch);
+ $('news-token')?.addEventListener('change',()=>{selectedNews=$('news-token').value;$('news-results').innerHTML='<div class="panel small-copy">Choose “Find coverage” to search news for this token.</div>';$('news-status').textContent='Results are not automatically linked to price movement.';$('news-search-link').hidden=true;});
+ $('news-load')?.addEventListener('click',loadNews);
+ function refresh(){renderResearch();renderNewsChooser()}
+ window.addEventListener('mr:market-change',()=>{if(document.getElementById('research')?.classList.contains('active'))renderResearch()});
+ window.addEventListener('mr:data-change',refresh);
+ window.addEventListener('mr:tab-change',e=>{if(e.detail==='research')renderResearch();if(e.detail==='news')renderNewsChooser()});
+ refresh();
+})();
+
+</script>
+<script>
+/* Embedded cloud-config.js for single-file GitHub Pages deployment */
+/* Public configuration only. These empty values intentionally disable account sign-in.
+   Fill only with the Supabase Project URL and sb_publishable_* key AFTER enabling RLS.
+   NEVER put a Supabase secret key, service_role key, or user password here. */
+window.MR_CLOUD_CONFIG = {url:'',publishableKey:''};
+
+</script>
+<script>
+/* Embedded cloud.js for single-file GitHub Pages deployment */
+/* Optional Supabase passwordless auth. No fake login; disabled until a backend is configured. */
+(()=>{
+ 'use strict';
+ const app=window.MR_APP,$=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const cfg=window.MR_CLOUD_CONFIG||{},enabled=/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/.test(cfg.url||'')&&/^(sb_publishable_|eyJ)/.test(cfg.publishableKey||'');
+ let client=null,user=null,autoSync=false,saveTimer=null,saving=false,queued=false;
+ const status=message=>{if($('account-status'))$('account-status').textContent=message};
+ const identity=()=>{if($('account-identity'))$('account-identity').textContent=user?`Signed in as ${user.email||'account user'}`:'Not signed in'};
+ const updateControls=()=>{
+   identity();$('account-auth-form').hidden=!!user||!enabled;$('account-signout').hidden=!user;
+   $('account-sync-choice').hidden=!user;$('account-sync-choice').querySelector('[data-cloud-choice="cloud"]').disabled=!user;
+   $('account-sync-choice').querySelector('[data-cloud-choice="local"]').disabled=!user;
+   if($('account-sync-state'))$('account-sync-state').textContent=autoSync?'Automatic cloud backup enabled after initial choice.':'Cloud backup is not active for this browser.';
+ };
+ if(!enabled){$('account-setup-warning').hidden=false;$('account-auth-form').hidden=true;$('account-signout').hidden=true;$('account-sync-choice').hidden=true;status('Account service has not been configured. Local watchlist and journal remain usable.');return}
+ $('account-setup-warning').hidden=true;
+ async function init(){
+   try{
+     // Import only after an operator has configured an actual Supabase backend.
+     const sdk=await import('https://esm.sh/@supabase/supabase-js@2.57.0');
+     client=sdk.createClient(cfg.url.replace(/\/$/,''),cfg.publishableKey,{auth:{flowType:'pkce',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+     client.auth.onAuthStateChange((_event,session)=>{const next=session?.user||null,changed=next?.id!==user?.id;user=next;if(changed){autoSync=false;updateControls();if(user)setTimeout(()=>prepareChoice(),0);else status('Signed out. Data still stored in this browser until you remove it or clear browser storage.')}else updateControls()});
+     let {data,error}=await client.auth.getSession();if(error)throw error;const next=data.session?.user||null,changed=next?.id!==user?.id;user=next;updateControls();if(user&&changed)await prepareChoice();else if(!user)status('Use your email to create an account or sign in. No password needed.');
+   }catch(e){$('account-auth-form').hidden=true;status(`Account service couldn't start: ${e.message}. Existing local data is unaffected.`)}
+ }
+ async function prepareChoice(){if(!client||!user)return;autoSync=false;updateControls();
+   status('Signed in. Choose whether to restore cloud data or back up this device. Nothing is overwritten until you choose.');
+   try{const {data,error}=await client.from('radar_workspaces').select('data,updated_at').eq('user_id',user.id).maybeSingle();if(error)throw error;
+     const local=app.getWorkspace(),nLocal=local.watch?.length||0,nCloud=data?.data?.watch?.length||0;
+     $('account-cloud-details').textContent=`This device: ${nLocal} tracked tokens. Cloud: ${nCloud} tracked tokens${data?.updated_at?' (last updated '+new Date(data.updated_at).toLocaleString()+')':''}. Choosing a source replaces the other; you can export a backup in Journal first.`;
+   }catch(e){status('Could not read your private cloud workspace: '+e.message+' Check RLS setup and avoid uploading until it is fixed.');$('account-sync-choice').hidden=true;}
+ }
+ function cleanSnapshot(v){return {watch:Array.isArray(v?.watch)?v.watch:[],notes:v?.notes&&typeof v.notes==='object'?v.notes:{},samples:v?.samples&&typeof v.samples==='object'?v.samples:{}}}
+ async function chooseSource(source){if(!client||!user)return;const b=$('account-sync-choice');b.querySelectorAll('button').forEach(x=>x.disabled=true);status('Synchronizing…');try{
+   if(source==='cloud'){
+     const {data,error}=await client.from('radar_workspaces').select('data').eq('user_id',user.id).maybeSingle();if(error)throw error;
+     if(!data){status('No saved workspace exists in cloud yet. Choose “Back up this device” to create one.');return}
+     // User explicitly requested replacing this device. Keep local snapshot for accidental restoration.
+     try{localStorage.setItem('memecoin-radar-last-local-backup',JSON.stringify(app.getWorkspace()))}catch{}
+     app.replaceWorkspace(cleanSnapshot(data.data));
+   }else if(source==='local'){
+     const payload=cleanSnapshot(app.getWorkspace());
+     const {error}=await client.from('radar_workspaces').upsert({user_id:user.id,data:payload,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;
+   }
+   autoSync=true;updateControls();$('account-sync-choice').hidden=true;status('Cloud backup active for this signed-in browser. You can export a separate backup at any time.');
+ }catch(e){status('Cloud sync failed: '+e.message+'. Your local data remains available.')}finally{b.querySelectorAll('button').forEach(x=>x.disabled=false)}}
+ async function save(){if(!client||!user||!autoSync)return;if(saving){queued=true;return}saving=true;
+   try{const payload=cleanSnapshot(app.getWorkspace());const {error}=await client.from('radar_workspaces').upsert({user_id:user.id,data:payload,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;status('Cloud backup saved at '+new Date().toLocaleTimeString());}
+   catch(e){status('Cloud backup failed; local data is still saved: '+e.message)}
+   finally{saving=false;if(queued){queued=false;save()}}
+ }
+ $('account-auth-form').addEventListener('submit',async e=>{e.preventDefault();const email=$('account-email').value.trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){status('Enter a valid email address.');return}const btn=$('account-send');btn.disabled=true;status('Requesting a secure sign-in link…');try{
+   const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true}});
+   if(error)throw error;status('Check your inbox for a sign-in link. It can create your account if you are new.');
+ }catch(e){status('Unable to send sign-in link: '+e.message)}finally{btn.disabled=false}});
+ $('account-signout').addEventListener('click',async()=>{if(!client)return;const {error}=await client.auth.signOut();if(error)status('Sign-out failed: '+error.message);});
+ $('account-sync-choice').addEventListener('click',e=>{const button=e.target.closest('[data-cloud-choice]');if(button)chooseSource(button.dataset.cloudChoice)});
+ window.addEventListener('mr:data-change',()=>{if(!autoSync)return;clearTimeout(saveTimer);saveTimer=setTimeout(save,1800)});
+ init();
+})();
+
 </script>
 </body>
 </html>
