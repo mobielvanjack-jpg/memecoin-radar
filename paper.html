@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f8f9">
+<meta name="description" content="Memecoin Radar Paper Lab: learn trade costs, liquidity impact, and realized P&L with virtual money only.">
+<title>Paper Lab | Memecoin Radar</title>
+<style>
+:root{color-scheme:light;--bg:#f7f8f9;--panel:#fff;--soft:#f4f5f6;--line:#e1e4e8;--ink:#171a1f;--muted:#616b78;--accent:#171a1f;--reverse:#fff;--green:#167347;--red:#b93549}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0e1013;--panel:#17191d;--soft:#202329;--line:#343840;--ink:#f0f1f3;--muted:#a7adb8;--accent:#eceef1;--reverse:#15171a;--green:#77cba0;--red:#ee919b}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input,select{font:inherit}button{cursor:pointer}a{color:inherit}button:disabled{cursor:not-allowed;opacity:.5}
+button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--muted);outline-offset:3px}
+.wrap{max-width:1170px;margin:0 auto;padding:23px clamp(14px,3vw,38px) 70px}
+.header,.flex{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.brand{font-weight:750;text-decoration:none;letter-spacing:.01em;display:flex;align-items:center;gap:10px}.mark{display:grid;place-items:center;width:36px;height:36px;background:var(--soft);border:1px solid var(--line);border-radius:10px}
+.hint{font-size:12px;color:var(--muted);line-height:1.65}.eyebrow{font-size:10px;font-weight:750;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(26px,4vw,38px);margin:8px 0;letter-spacing:-.035em;line-height:1.18}h2{font-size:17px;margin:0 0 10px;letter-spacing:-.02em}h3{font-size:14px;margin:0 0 7px}
+p{margin:7px 0}.btn{border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);padding:9px 13px;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-size:13px;font-weight:650}
+.btn.primary{background:var(--accent);color:var(--reverse);border-color:var(--accent)}.btn:hover{filter:brightness(.94)}.btn.danger{color:var(--red)}.btn.tiny{padding:6px 10px;font-size:11px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:20px;min-width:0}.notice{border:1px solid var(--line);background:var(--soft);padding:13px 16px;border-radius:9px;color:var(--ink);font-size:12px;line-height:1.7}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:21px 0}
+.stat{font-size:25px;font-weight:750;letter-spacing:-.03em;margin:7px 0;overflow-wrap:anywhere}.split{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:16px;align-items:start}.stack{display:grid;gap:16px}
+.search{display:flex;gap:9px}.input{width:100%;min-width:0;padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}.input:focus{outline:2px solid var(--muted);outline-offset:1px}
+.results{display:grid;gap:8px;max-height:315px;overflow:auto;margin-top:14px}.result{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:8px;padding:10px}
+.title{font-weight:700;overflow-wrap:anywhere}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;color:var(--muted);overflow-wrap:anywhere}.small{font-size:12px}.muted{color:var(--muted)}.up{color:var(--green)}.down{color:var(--red)}
+.quote{border:1px solid var(--line);background:var(--soft);padding:13px;border-radius:9px;margin-top:10px}.quote-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:13px}.kv .label{font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:700;letter-spacing:.03em}.kv .value{font-size:15px;font-weight:700;overflow-wrap:anywhere;margin-top:4px}
+.tabs{display:flex;gap:8px;margin-bottom:13px}.tabs button{flex:1}.tabs .selected{background:var(--accent);color:var(--reverse);border-color:var(--accent)}
+label{display:block;font-size:12px;font-weight:650;margin:13px 0 6px}
+.preview{background:var(--soft);padding:14px;border:1px solid var(--line);border-radius:9px;margin:16px 0;font-size:12px;line-height:1.8}
+.preview dl{margin:0}.preview .line{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line);padding:5px 0}.preview .line:last-child{border-bottom:0}.preview strong{text-align:right}
+.holding,.trade{border-bottom:1px solid var(--line);padding:13px 0}.holding:last-child,.trade:last-child{border:0}.tag{display:inline-block;font-size:10px;border:1px solid var(--line);border-radius:5px;padding:3px 6px;color:var(--muted);font-weight:650}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}.note{font-size:11px;line-height:1.7;color:var(--muted)}
+details{border:1px solid var(--line);padding:12px 14px;border-radius:9px}summary{cursor:pointer;font-weight:650}
+.assumptions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.assumptions label{margin-top:8px}
+.table-wrap{overflow-x:auto}.table{width:100%;border-collapse:collapse;font-size:12px;min-width:550px}th{text-align:left;text-transform:uppercase;letter-spacing:.05em;font-size:10px;color:var(--muted)}td,th{border-bottom:1px solid var(--line);padding:12px 9px;vertical-align:top}td:last-child,th:last-child{text-align:right}
+.empty{padding:18px;color:var(--muted);border:1px dashed var(--line);border-radius:9px;font-size:12px;line-height:1.6}
+#status{font-size:12px;color:var(--muted)}.footer{margin-top:35px;padding-top:17px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;line-height:1.75}
+@media(max-width:850px){.split{grid-template-columns:1fr}.grid4{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:530px){.wrap{padding:15px 13px 55px}.grid4{gap:8px}.grid4 .panel{padding:14px}.stat{font-size:21px}.panel{padding:16px}.search{flex-wrap:wrap}.search input{flex:1;min-width:180px}.quote-grid{gap:10px}.assumptions{grid-template-columns:1fr}.header{gap:8px}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="header"><a class="brand" href="./index.html"><span class="mark">◉</span><span>MEME RADAR <small class="muted" style="display:block;font-size:10px;letter-spacing:.1em">PAPER LAB</small></span></a>
+<div class="actions" style="margin:0"><span class="tag">VIRTUAL MONEY ONLY</span><button id="theme" class="btn" type="button">◐ Theme</button></div></header>
+<div style="margin:27px 0 15px"><div class="eyebrow">PRACTICE / NO WALLET CONNECTION</div><h1>Understand trades before risking money.</h1>
+<p class="hint" style="max-width:790px">Simulate buying and selling using public token price snapshots. Study fees, liquidity impact and the difference between chart value and estimated exit value. No real orders, no financial advice, no prediction engine.</p></div>
+<div class="notice"><strong>Simulation, not execution.</strong> Estimates use a simplified constant-product pool and one DEX Screener liquidity figure. Many real pools use different mechanics; quoted prices, slippage, platform minimums and fees can differ greatly. Simulated gains are not evidence of a profitable real-money strategy.</div>
+<section class="grid4" aria-label="Virtual portfolio summary">
+<div class="panel"><div class="eyebrow">Virtual cash</div><div class="stat" id="cash">$100.00</div><div class="hint">Unspent simulation funds</div></div>
+<div class="panel"><div class="eyebrow">Estimated exit equity</div><div class="stat" id="equity">$100.00</div><div class="hint" id="equity-note">Cash + model exit proceeds</div></div>
+<div class="panel"><div class="eyebrow">Realized virtual P&amp;L</div><div class="stat" id="realized">$0.00</div><div class="hint">Closed amounts after modeled costs</div></div>
+<div class="panel"><div class="eyebrow">Modeled fees paid</div><div class="stat" id="fees">$0.00</div><div class="hint">Not exchange charges</div></div>
+</section>
+<div class="split">
+<div class="stack">
+<section class="panel"><div class="flex"><h2>1. Find a token</h2><span class="tag">DEX Screener</span></div>
+<form class="search" id="search-form"><input class="input" id="search" aria-label="Token search" placeholder="Name, symbol or contract address" required minlength="2" maxlength="128"><button class="btn primary" id="search-btn">Search</button></form>
+<p class="note">Select the contract, not just the ticker: unrelated tokens can share the same name. Search results prefer higher-liquidity pools.</p>
+<div id="results" class="results"><div class="empty">Search for a token to study. Your watchlist from the main dashboard is not required.</div></div>
+</section>
+<section class="panel" id="order-panel"><div class="flex"><h2>2. Simulate a trade</h2><button class="btn tiny" type="button" id="refresh">↻ Refresh prices</button></div>
+<div id="selected" class="empty">Select a token above or use a holding below.</div>
+<div id="order-ui" hidden>
+<div class="tabs" role="group" aria-label="Simulated order side" style="margin-top:17px"><button class="btn selected" id="buy-side" type="button">Virtual buy</button><button class="btn" id="sell-side" type="button">Virtual sell</button></div>
+<label id="amount-label" for="amount">Total virtual USD to spend (includes modeled fees)</label>
+<div class="flex" style="flex-wrap:nowrap"><input type="number" class="input" id="amount" min="0" step="any" inputmode="decimal" placeholder="5.00"><button class="btn" id="max" type="button">Max</button></div>
+<div class="preview" id="preview" aria-live="polite">Enter an amount to see a hypothetical execution estimate.</div>
+<button id="simulate" class="btn primary" type="button" disabled>Simulate purchase</button>
+<p class="note">Quotes must be refreshed within 2 minutes. The model does not access your FOMO account and cannot verify that a real sale would execute.</p>
+</div></section>
+<section class="panel"><div class="flex"><h2>Model assumptions</h2><span class="tag">Editable</span></div>
+<p class="hint">Defaults illustrate the small-trade fees and minimums discussed earlier. They are not verified FOMO fee settings.</p>
+<details><summary>Adjust fee and minimum assumptions</summary>
+<div class="assumptions">
+<div><label for="fixed">Fixed fee per trade ($)</label><input class="input" type="number" id="fixed" min="0" max="100" step="0.01"></div>
+<div><label for="percent">Variable fee (%)</label><input class="input" type="number" id="percent" min="0" max="25" step="0.05"></div>
+<div><label for="minimum">Minimum model sale ($)</label><input class="input" type="number" id="minimum" min="0" max="100" step="0.01"></div>
+</div><p class="note">Fee assumptions affect subsequent simulated trades and today's hypothetical exit estimates. Past trades keep their recorded costs. Minimum sale uses estimated gross proceeds before fees.</p></details>
+</section>
+</div>
+<div class="stack">
+<section class="panel"><div class="flex"><h2>Open virtual holdings</h2><span class="tag" id="holding-count">0 tokens</span></div><div id="holdings" class="empty">No holdings yet. Simulate a purchase to examine price impact and net returns.</div></section>
+<section class="panel"><div class="flex"><h2>Paper-trading session</h2><button class="btn tiny danger" id="reset" type="button">Reset session</button></div>
+<p class="hint">Starts at $100 in virtual cash. This session is stored only in this browser; it is not linked to an account or a blockchain.</p>
+<div class="kv" style="margin:13px 0"><div class="label">Estimated open P&amp;L after modeled exit costs</div><div class="value" id="open-pnl">$0.00</div></div>
+<div class="flex"><span class="note" id="trades-count">0 simulated trades</span><button class="btn tiny" id="export" type="button">Export session</button></div>
+<p id="status" role="status" aria-live="polite">Ready for a simulated search.</p>
+</section>
+</div></div>
+<section class="panel" style="margin-top:16px"><h2>Trade history</h2><p class="hint">Realized P&amp;L is computed from weighted-average inventory cost, including modeled buy costs and net simulated sale proceeds.</p>
+<div id="history"><div class="empty">Trades you simulate appear here with timestamps and the assumptions used.</div></div></section>
+<div class="footer">Memecoin Radar Paper Lab v1.4 · Independent educational simulator. Quotes: DEX Screener public API. No real trading, no connected wallets, no guaranteed execution prices. Simulated fills use a simplistic constant-product approximation even if the selected real pool uses different mechanics. Data can be stale or inaccurate, particularly in thin markets. Closing this page does not create orders or track prices in the background. Never share seed phrases, passwords or private keys.</div>
+</main>
+<script>
+(function(){
+'use strict';
+const KEY='mr-paper-v1',THEME_KEY='memecoin-radar-theme',API='https://api.dexscreener.com',START=100,STALE=120000;
+const $=id=>document.getElementById(id);
+const fmt=n=>Number.isFinite(n)?(n<0?'−':'')+'$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'Unavailable';
+const prec=n=>Number.isFinite(n)&&n>0?'$'+(n>=.01?n.toLocaleString('en-US',{maximumFractionDigits:6}):n.toPrecision(5)):'Unavailable';
+const qty=n=>Number.isFinite(n)?n.toLocaleString('en-US',{maximumFractionDigits:8}):'—';
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const valid=n=>Number.isFinite(n)&&n>=0;
+const pairKey=(chain,address)=>String(chain).toLowerCase()+'|'+String(address);
+const empty=()=>({cash:START,holdings:{},trades:[],realized:0,fees:0,settings:{fixed:.10,percent:.30,minimum:2}});
+function load(){
+  try{const x=JSON.parse(localStorage.getItem(KEY)||'null');if(!x||!valid(x.cash)||!Array.isArray(x.trades)||!x.holdings||typeof x.holdings!=='object')return empty();
+    if(Object.keys(x.holdings).length>70||x.trades.length>500)return empty();
+    for(const p of Object.values(x.holdings)){if(!p||!valid(p.quantity)||!valid(p.basis)||p.quantity>1e20||p.basis>1e9||typeof p.chain!=='string'||typeof p.address!=='string')return empty()}
+    x.settings=Object.assign(empty().settings,x.settings||{});for(const k of ['fixed','percent','minimum'])if(!valid(Number(x.settings[k])))x.settings[k]=empty().settings[k];
+    x.cash=Math.min(x.cash,1e9);x.realized=Number.isFinite(x.realized)?x.realized:0;x.fees=valid(x.fees)?x.fees:0;return x;
+  }catch{return empty()}
+}
+let db=load(),chosen=null,side='buy',matches=[],quotes=new Map(),busy=false,searchBusy=false;
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch{status('Browser storage is unavailable. Export your session before closing this page.')}window.dispatchEvent(new Event('mr-paper-change'))}
+function status(s){$('status').textContent=s}
+function setTheme(value){document.documentElement.dataset.theme=value;try{localStorage.setItem(THEME_KEY,value)}catch{}}
+setTheme((()=>{try{return localStorage.getItem(THEME_KEY)==='dark'?'dark':'light'}catch{return 'light'}})());
+$('theme').addEventListener('click',()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
+function num(x){if(x===null||x===undefined||x==='')return NaN;return Number(x)}
+function choosePools(raw,chain,address){const key=pairKey(chain,address);
+  return (Array.isArray(raw)?raw:[]).filter(p=>p&&p.baseToken&&pairKey(p.chainId,p.baseToken.address)===key)
+    .filter(p=>num(p.priceUsd)>0&&num(p.liquidity&&p.liquidity.usd)>0)
+    .sort((a,b)=>num(b.liquidity.usd)-num(a.liquidity.usd))[0]||null}
+function savePair(p){if(!p||!p.baseToken||!p.chainId)return null;
+ const price=num(p.priceUsd),liquidity=num(p.liquidity&&p.liquidity.usd);if(!(price>0&&liquidity>0))return null;
+ const k=pairKey(p.chainId,p.baseToken.address);
+ const record={key:k,chain:p.chainId,address:p.baseToken.address,name:String(p.baseToken.name||p.baseToken.symbol||'Token').slice(0,110),symbol:String(p.baseToken.symbol||'?').slice(0,35),price,liquidity,dex:String(p.dexId||'pool').slice(0,40),pairAddress:String(p.pairAddress||'').slice(0,140),at:Date.now()};
+ quotes.set(k,record);return record}
+function isFresh(q){return q&&Date.now()-q.at<STALE}
+function modelBuy(budget,q){if(!q||!(budget>0))return null;
+ const fixed=num(db.settings.fixed),rate=num(db.settings.percent)/100;
+ const fee=fixed+budget*rate,netInput=budget-fee;
+ if(!(netInput>0))return null;
+ const quoteReserve=q.liquidity/2;
+ const tokens=(quoteReserve/q.price)*(netInput/(quoteReserve+netInput));
+ const impact=100*(1-tokens/(netInput/q.price));
+ return Number.isFinite(tokens)&&tokens>0?{tokens,fee,impact,spent:budget,netInput}:null}
+function modelSell(tokens,q){if(!q||!(tokens>0))return null;
+ const quoteReserve=q.liquidity/2,baseReserve=quoteReserve/q.price;
+ const gross=quoteReserve*tokens/(baseReserve+tokens);
+ const fee=num(db.settings.fixed)+gross*num(db.settings.percent)/100;
+ const net=Math.max(0,gross-fee),impact=100*(1-gross/(tokens*q.price));
+ return Number.isFinite(gross)&&gross>0?{gross,fee,net,impact,tokens}:null}
+function line(label,value){return '<div class="line"><span>'+esc(label)+'</span><strong>'+esc(value)+'</strong></div>'}
+function estimate(){
+ const q=chosen&&quotes.get(chosen),n=num($('amount').value),pos=chosen&&db.holdings[chosen];
+ const preview=$('preview');$('simulate').disabled=true;
+ if(!q){preview.textContent='Select a token with a usable price and liquidity quote.';return}
+ if(!isFresh(q)){preview.textContent='This quote is more than 2 minutes old. Refresh market data before simulating.';return}
+ if(!(n>0)){preview.textContent='Enter a positive '+(side==='buy'?'virtual USD amount.':'token quantity.');return}
+ if(side==='buy'){
+  if(n>db.cash+1e-8){preview.textContent='Amount exceeds your available virtual cash.';return}
+  const m=modelBuy(n,q);if(!m){preview.textContent='Fees exceed this virtual purchase. Increase the amount or adjust model assumptions.';return}
+  preview.innerHTML=line('Virtual spend',fmt(n))+line('Modeled fees',fmt(m.fee))+line('Modeled pool impact',m.impact.toFixed(2)+'%')+line('Estimated token units',qty(m.tokens))+'<p class="note">Estimated quantity assumes a hypothetical constant-product pool, not this venue’s actual quoting engine.</p>';
+ }else{
+  if(!pos||!(pos.quantity>0)){preview.textContent='No virtual holdings of this token to sell.';return}
+  if(n>pos.quantity*(1+1e-9)){preview.textContent='Quantity exceeds virtual holdings.';return}
+  const m=modelSell(Math.min(n,pos.quantity),q);
+  if(!m){preview.textContent='Cannot calculate a hypothetical exit.';return}
+  const share=Math.min(1,n/pos.quantity),allocated=pos.basis*share,pnl=m.net-allocated;
+  preview.innerHTML=line('Gross modeled sale',fmt(m.gross))+line('Modeled fees',fmt(m.fee))+line('Modeled pool impact',m.impact.toFixed(2)+'%')+line('Net virtual cash back',fmt(m.net))+line('Realized virtual P&L',fmt(pnl));
+  if(m.gross+1e-8<num(db.settings.minimum)){preview.innerHTML+='<p class="note down">Below the configured minimum modeled sale. This is only a simulated venue constraint.</p>';return}
+ }
+ $('simulate').disabled=false}
+function showSelection(){
+ const q=chosen&&quotes.get(chosen),dest=$('selected');$('order-ui').hidden=!q;
+ if(!q){dest.className='empty';dest.textContent='Select a token to inspect a quote.';return}
+ dest.className='quote';
+ const age=Math.round((Date.now()-q.at)/1000);
+ dest.innerHTML='<div class="flex"><strong>'+esc(q.symbol)+' · '+esc(q.chain)+'</strong><span class="tag">'+esc(q.dex)+'</span></div>'+
+ '<div class="mono">'+esc(q.address)+'</div><div class="quote-grid">'+
+ '<div class="kv"><div class="label">Price per token</div><div class="value">'+esc(prec(q.price))+'</div></div>'+
+ '<div class="kv"><div class="label">Selected pool liquidity</div><div class="value">'+esc(fmt(q.liquidity))+'</div></div></div>'+
+ '<p class="note">Source: DEX Screener · fetched '+age+' seconds ago. This liquidity belongs to one selected pool, not all pools combined.</p>';
+ $('amount').value='';renderSide();estimate()}
+function renderSide(){
+ $('buy-side').classList.toggle('selected',side==='buy');$('sell-side').classList.toggle('selected',side==='sell');
+ $('amount-label').textContent=side==='buy'?'Total virtual USD to spend (includes modeled fees)':'Token units to sell';
+ $('simulate').textContent=side==='buy'?'Simulate purchase':'Simulate sale';
+ $('amount').placeholder=side==='buy'?'5.00':'Token quantity';
+}
+function renderResults(){
+ $('results').innerHTML=matches.length?matches.map(p=>{
+  const a=p.baseToken,price=num(p.priceUsd),liquidity=num(p.liquidity&&p.liquidity.usd),k=pairKey(p.chainId,a.address);
+  return '<div class="result"><div style="min-width:0"><div class="title">'+esc(a.symbol||'?')+' <span class="muted small">· '+esc(p.chainId)+'</span></div><div class="note">'+esc(a.name||'')+' · '+esc(p.dexId||'pool')+'</div><div class="mono">'+esc(String(a.address).slice(0,13))+'…</div><div class="note">Price '+esc(prec(price))+' · Pool '+esc(fmt(liquidity))+'</div></div><button class="btn tiny" data-select="'+esc(k)+'">Study</button></div>';
+ }).join(''):'<div class="empty">No usable token/pool matches. Try an exact contract address.</div>'}
+function selectPair(pair){const q=savePair(pair);if(!q){status('That token has no usable price or liquidity data.');return}chosen=q.key;showSelection();$('order-panel').scrollIntoView({behavior:'smooth',block:'start'});status('Quote selected. No real trades will be placed.')}
+async function json(url){const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),10000);try{const r=await fetch(url,{headers:{Accept:'application/json'},signal:ctl.signal});if(!r.ok)throw Error('Data source HTTP '+r.status);return await r.json()}finally{clearTimeout(timer)}}
+$('search-form').addEventListener('submit',async ev=>{
+ ev.preventDefault();const text=$('search').value.trim();if(text.length<2||searchBusy)return;
+ searchBusy=true;$('search-btn').disabled=true;$('results').innerHTML='<div class="empty">Searching public markets…</div>';
+ try{const payload=await json(API+'/latest/dex/search?q='+encodeURIComponent(text));const best=new Map();
+ for(const p of (payload.pairs||[])){if(!p||!p.baseToken||!(num(p.priceUsd)>0)||!(num(p.liquidity&&p.liquidity.usd)>0))continue;
+ const k=pairKey(p.chainId,p.baseToken.address),old=best.get(k);
+ if(!old||num(p.liquidity.usd)>num(old.liquidity.usd))best.set(k,p)}
+ matches=[...best.values()].sort((a,b)=>num(b.liquidity.usd)-num(a.liquidity.usd)).slice(0,12);renderResults();
+ status(matches.length+' token contracts found with price and pool data. Verify the contract address.');
+ }catch(e){$('results').innerHTML='<div class="empty">Search unavailable. Check your connection and try again.</div>';status('Market data error: '+e.message)}
+ finally{searchBusy=false;$('search-btn').disabled=false}
+});
+$('results').addEventListener('click',e=>{const b=e.target.closest('[data-select]');if(!b)return;const p=matches.find(x=>pairKey(x.chainId,x.baseToken.address)===b.dataset.select);if(p)selectPair(p)});
+$('buy-side').addEventListener('click',()=>{side='buy';renderSide();$('amount').value='';estimate()});
+$('sell-side').addEventListener('click',()=>{side='sell';renderSide();$('amount').value='';estimate()});
+$('amount').addEventListener('input',estimate);
+$('max').addEventListener('click',()=>{if(!chosen)return;const p=db.holdings[chosen];$('amount').value=side==='buy'?Math.max(0,db.cash).toFixed(6):p?String(p.quantity):'0';estimate()});
+function applySettings(){for(const [key,id,maximum] of [['fixed','fixed',100],['percent','percent',25],['minimum','minimum',100]]){let n=num($(id).value);if(!valid(n)||n>maximum){$(id).value=String(db.settings[key]);continue}db.settings[key]=n}persist();renderPortfolio();estimate()}
+['fixed','percent','minimum'].forEach(id=>{$(id).value=String(db.settings[id==='percent'?'percent':id]);$(id).addEventListener('change',applySettings)});
+function updateHolding(q,delta,basis){let p=db.holdings[q.key]||{chain:q.chain,address:q.address,symbol:q.symbol,name:q.name,quantity:0,basis:0};
+ p.quantity+=delta;p.basis+=basis;if(p.quantity<1e-10){delete db.holdings[q.key]}else db.holdings[q.key]=p}
+$('simulate').addEventListener('click',()=>{
+ const q=chosen&&quotes.get(chosen),n=num($('amount').value);if(!isFresh(q)||!(n>0)){estimate();return}
+ if(side==='buy'){
+  if(n>db.cash+1e-8){estimate();return}
+  const m=modelBuy(n,q);if(!m)return;const p=db.holdings[q.key];if(!p&&Object.keys(db.holdings).length>=30){status('Virtual holdings limit reached.');return}
+  db.cash=Math.max(0,db.cash-n);updateHolding(q,m.tokens,n);db.fees+=m.fee;
+  db.trades.unshift({at:Date.now(),side:'BUY',chain:q.chain,address:q.address,symbol:q.symbol,quantity:m.tokens,usd:n,fee:m.fee,impact:m.impact,price:q.price,pnl:null});
+  status('Virtual purchase recorded; cash and cost basis updated.');
+ }else{
+  let pos=db.holdings[q.key];if(!pos||n>pos.quantity*(1+1e-9))return;
+  const amount=Math.min(n,pos.quantity),m=modelSell(amount,q);if(!m||m.gross+1e-8<num(db.settings.minimum)){estimate();return}
+  const basis=pos.basis*(amount/pos.quantity),pnl=m.net-basis;
+  db.cash+=m.net;db.realized+=pnl;db.fees+=m.fee;
+  updateHolding(q,-amount,-basis);
+  db.trades.unshift({at:Date.now(),side:'SELL',chain:q.chain,address:q.address,symbol:q.symbol,quantity:amount,usd:m.net,fee:m.fee,impact:m.impact,price:q.price,pnl});
+  status('Virtual sale recorded; net proceeds and realized P&L updated.');
+ }
+ db.trades=db.trades.slice(0,350);persist();$('amount').value='';renderAll();
+});
+function renderPortfolio(){
+ $('cash').textContent=fmt(db.cash);$('fees').textContent=fmt(db.fees);$('realized').textContent=fmt(db.realized);$('realized').className='stat '+(db.realized>=0?'up':'down');
+ const items=Object.entries(db.holdings).filter(([,p])=>p.quantity>0);
+ $('holding-count').textContent=items.length+' token'+(items.length===1?'':'s');
+ let allQuoted=true,exitTotal=0,openPnl=0;
+ const html=items.map(([k,p])=>{
+  const q=quotes.get(k),fresh=isFresh(q),mid=fresh?p.quantity*q.price:null,model=fresh?modelSell(p.quantity,q):null;
+  if(!model)allQuoted=false;else{exitTotal+=model.net;openPnl+=model.net-p.basis}
+  const below=model&&model.gross<num(db.settings.minimum);
+  return '<article class="holding"><div class="flex"><div><div class="title">'+esc(p.symbol)+' <span class="tag">'+esc(p.chain)+'</span></div><div class="mono">'+esc(String(p.address).slice(0,20))+'…</div></div><button class="btn tiny" data-holding="'+esc(k)+'">Study / sell virtually</button></div>'+
+  '<div class="quote-grid">'+
+  '<div class="kv"><div class="label">Quantity</div><div class="value">'+qty(p.quantity)+'</div></div>'+
+  '<div class="kv"><div class="label">Cost basis</div><div class="value">'+fmt(p.basis)+'</div></div>'+
+  '<div class="kv"><div class="label">Chart-style value</div><div class="value">'+(mid===null?'Unavailable':fmt(mid))+'</div></div>'+
+  '<div class="kv"><div class="label">Modeled full-exit proceeds</div><div class="value">'+(model?fmt(model.net):'Unavailable')+'</div></div></div>'+
+  '<p class="note">'+(model?'Modeled exit P&L: '+fmt(model.net-p.basis)+' · '+Math.round((Date.now()-q.at)/1000)+'s old':'Needs fresh market data; estimated equity incomplete.')+(below?' · Below your model minimum sale.':'')+'</p></article>';
+ }).join('');
+ $('holdings').className=items.length?'':'empty';
+ $('holdings').innerHTML=items.length?html:'No virtual positions. Try a paper purchase from a supported pool.';
+ $('equity').textContent=allQuoted?fmt(db.cash+exitTotal):'Incomplete';
+ $('equity-note').textContent=allQuoted?'Cash + modeled full-exit proceeds':'One or more positions lack a fresh quote; no invented total';
+ $('open-pnl').textContent=allQuoted?fmt(openPnl):'Unavailable';
+ $('open-pnl').className='value '+(allQuoted?(openPnl>=0?'up':'down'):'');
+}
+$('holdings').addEventListener('click',async e=>{const btn=e.target.closest('[data-holding]');if(!btn)return;
+ const key=btn.dataset.holding,p=db.holdings[key],q=quotes.get(key);if(!p)return;
+ if(q){chosen=key;side='sell';showSelection();$('order-panel').scrollIntoView({behavior:'smooth',block:'start'})}
+ else {await loadToken(p.chain,p.address);const fresh=quotes.get(key);if(fresh){chosen=key;side='sell';showSelection();$('order-panel').scrollIntoView({behavior:'smooth',block:'start'})}}
+});
+function renderHistory(){
+ $('trades-count').textContent=db.trades.length+' simulated trades';
+ if(!db.trades.length){$('history').innerHTML='<div class="empty">No trades recorded yet.</div>';return}
+ $('history').innerHTML='<div class="table-wrap"><table class="table"><thead><tr><th>Date</th><th>Token</th><th>Action</th><th>Units</th><th>Cash flow</th><th>Fees</th><th>Realized P&L</th></tr></thead><tbody>'+
+ db.trades.slice(0,150).map(t=>'<tr><td>'+esc(new Date(t.at).toLocaleString())+'</td><td>'+esc(t.symbol)+'<div class="mono">'+esc(t.chain)+'</div></td><td>'+esc(t.side)+'</td><td>'+qty(t.quantity)+'</td><td>'+esc((t.side==='BUY'?'−':'+')+fmt(t.usd))+'</td><td>'+fmt(t.fee)+'</td><td>'+esc(t.pnl===null?'Not realized':fmt(t.pnl))+'</td></tr>').join('')+'</tbody></table></div>';
+}
+function renderAll(){renderPortfolio();renderHistory();showSelection()}
+async function loadToken(chain,address){try{
+ const response=await json(API+'/token-pairs/v1/'+encodeURIComponent(chain)+'/'+encodeURIComponent(address));
+ const p=choosePools(response,chain,address);if(p)return savePair(p);
+ }catch(e){status('Price lookup unavailable: '+e.message)}
+ return null}
+async function refresh(){
+ if(busy)return;busy=true;$('refresh').disabled=true;
+ try{const keys=new Set(Object.keys(db.holdings));if(chosen)keys.add(chosen);let success=0;let failures=0;
+  const list=[...keys];if(!list.length){status('Search for a token to begin.');return}
+  const groups={};for(const k of list){const sep=k.indexOf('|'),chain=k.slice(0,sep),address=k.slice(sep+1);(groups[chain]||(groups[chain]=[])).push(address)}
+  for(const [chain,addresses] of Object.entries(groups)){for(let i=0;i<addresses.length;i+=25){
+   const batch=addresses.slice(i,i+25);
+   try{const data=await json(API+'/tokens/v1/'+encodeURIComponent(chain)+'/'+batch.map(encodeURIComponent).join(','));
+    for(const address of batch){const p=choosePools(data,chain,address);if(p){savePair(p);success++}else failures++}
+   }catch{for(const addr of batch){if(await loadToken(chain,addr))success++;else failures++}}
+  }}
+  status('Price snapshots refreshed for '+success+' tokens.'+(failures?' '+failures+' unavailable; valuations may be incomplete.':''));
+ }finally{busy=false;$('refresh').disabled=false;renderAll()}
+}
+$('refresh').addEventListener('click',refresh);
+$('reset').addEventListener('click',()=>{if(!confirm('Reset all virtual holdings and simulated trades to $100? This cannot be undone unless you exported a backup.'))return;
+ const settings=db.settings;db=empty();db.settings=settings;chosen=null;matches=[];quotes.clear();$('results').innerHTML='<div class="empty">Search for a token to start a new paper session.</div>';persist();renderAll();status('Virtual session reset. No real money was involved.')});
+$('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({app:'memecoin-radar-paper',version:1,exported:new Date().toISOString(),session:db},null,2)],{type:'application/json'});
+ const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='memecoin-radar-paper-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status('Virtual session exported as JSON.')});
+renderSide();renderPortfolio();renderHistory();showSelection();if(Object.keys(db.holdings).length)refresh();
+setInterval(()=>{if(!document.hidden&&(chosen||Object.keys(db.holdings).length))refresh()},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&([...quotes.values()].some(q=>!isFresh(q))))refresh()});
+})();
+</script></body></html>
