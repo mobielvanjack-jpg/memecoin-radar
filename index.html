@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#f7f8f9">
   <meta name="description" content="Memecoin Radar: explainable memecoin market-structure research, source checks, and real news links. No buy signals.">
-  <title>Memecoin Radar v1.3 | Token research lab</title>
+  <title>Memecoin Radar v1.4 | Token research lab & Paper Lab</title>
   <style>
 /* Memecoin Radar 1.2 — restrained light/dark design, no decorative gradients */
 :root{
@@ -69,7 +69,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
       <button class="nav-btn" data-tab="explore"><span>⌕</span> Token explorer</button>
       <button class="nav-btn" data-tab="research"><span>◎</span> Research lab</button>
       <button class="nav-btn" data-tab="news"><span>▤</span> News desk</button>
-      <button class="nav-btn" data-tab="journal"><span>✎</span> Research journal</button>
+      <a class="nav-btn" href="./paper.html" style="text-decoration:none"><span>▤</span> Paper Lab · virtual only</a>
+       <button class="nav-btn" data-tab="journal"><span>✎</span> Research journal</button>
       <button class="nav-btn" data-tab="account"><span>♙</span> Account & sync</button>
     </nav>
     <div class="sidebar-foot"><div class="source-blurb"><strong><span class="pulse"></span> READ-ONLY RESEARCH</strong><br>Live market data when connected. No wallet connection, no orders, no signals.<br><br>Data: DEX Screener + GeckoTerminal.</div></div>
@@ -82,7 +83,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
           <button class="btn" id="refresh-btn" title="Update all tracked tokens">↻ Refresh</button></div>
       </header>
       <section class="section active" id="overview">
-        <div class="hero"><div><div class="eyebrow">YOUR WORKSPACE</div><h2>A clearer view of token data.</h2><p>Track tokens, compare public data sources and keep research notes. No wallet connection required.</p><button class="btn primary" data-go="explore">⌕ Explore tokens</button></div><div class="hero-graphic" aria-hidden="true">📡</div></div>
+        <div class="hero"><div><div class="eyebrow">YOUR WORKSPACE</div><h2>A clearer view of token data.</h2><p>Track tokens, compare public data sources and keep research notes. No wallet connection required.</p><button class="btn primary" data-go="explore">⌕ Explore tokens</button><a class="btn" href="./paper.html" style="margin-left:8px">Paper Lab · $100 virtual</a></div><div class="hero-graphic" aria-hidden="true">📡</div></div>
         <div class="stats">
           <div class="panel stat"><div class="stat-k">Tracked tokens</div><div class="stat-v" id="total-tokens">0</div><div class="stat-note">Personal watchlist</div></div>
           <div class="panel stat"><div class="stat-k">Up in 24h</div><div class="stat-v up" id="up-tokens">0</div><div class="stat-note">Among tokens with data</div></div>
@@ -128,13 +129,13 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{
         <div class="panel" style="margin-bottom:16px"><div class="eyebrow">RESEARCH NOTES</div><h2 style="margin:9px 0">What would prove the prediction wrong?</h2><p class="small-copy" style="max-width:650px">Save a thesis and the evidence that would change your mind. This journal is for research, not buy or sell decisions. Notes stay in this browser unless you export them.</p><div class="toolbar"><button class="btn small" id="export-btn">↓ Export data</button><button class="btn small" id="import-btn">↑ Import data</button><input id="import-input" type="file" accept=".json,application/json" hidden></div></div>
         <div id="journal-list" class="cards"></div>
       </section>
-      <div class="disclaimer">Memecoin Radar v1.3 uses DEX Screener and (when reachable) GeckoTerminal, with market cap and FDV separated. Independent educational tool, not affiliated with FOMO or the data providers. Prices and liquidity may be delayed, incomplete, or different from other platforms. No investment recommendations or performance predictions. News searches are keyword matches only, not causal claims. Account sync requires separate secure configuration. Never paste wallet recovery phrases or private keys into this app.</div>
+      <div class="disclaimer">Memecoin Radar v1.4 uses DEX Screener and (when reachable) GeckoTerminal, with market cap and FDV separated. Independent educational tool, not affiliated with FOMO or the data providers. Prices and liquidity may be delayed, incomplete, or different from other platforms. No investment recommendations or performance predictions. News searches are keyword matches only, not causal claims. Account sync requires separate secure configuration. Never paste wallet recovery phrases or private keys into this app.</div>
     </div>
     <div class="detail-screen" id="detail-screen"><div class="detail-head"><button class="btn" id="back-btn">← Back</button><div class="toolbar"><button class="btn small theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">◐ Theme</button>
           <button class="btn small" id="detail-refresh">↻ Refresh data</button><button class="btn danger small" id="detail-remove">Remove from watchlist</button></div></div><div id="detail-content"></div></div>
   </main>
 </div>
-<nav class="mobile-nav" aria-label="Mobile menu"><button class="nav-btn active" data-tab="overview"><span>▦</span> Home</button><button class="nav-btn" data-tab="explore"><span>⌕</span> Explore</button><button class="nav-btn" data-tab="research"><span>◎</span> Research</button><button class="nav-btn" data-tab="news"><span>▤</span> News</button><button class="nav-btn" data-tab="journal"><span>✎</span> Journal</button><button class="nav-btn" data-tab="account"><span>♙</span> Account</button></nav>
+<nav class="mobile-nav" aria-label="Mobile menu"><button class="nav-btn active" data-tab="overview"><span>▦</span> Home</button><button class="nav-btn" data-tab="explore"><span>⌕</span> Explore</button><button class="nav-btn" data-tab="research"><span>◎</span> Research</button><button class="nav-btn" data-tab="news"><span>▤</span> News</button><a class="nav-btn" href="./paper.html" style="text-decoration:none"><span>▤</span> Paper</a><button class="nav-btn" data-tab="journal"><span>✎</span> Journal</button><button class="nav-btn" data-tab="account"><span>♙</span> Account</button></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 (() => {
